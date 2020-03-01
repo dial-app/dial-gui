@@ -1,5 +1,0 @@
-dial-core>=0.4a0
-tensorflow>=2.0.0a0
-PySide2>=5.12.6
-qimage2ndarray>=1.8.0
-dependency-injector>=3.14.12

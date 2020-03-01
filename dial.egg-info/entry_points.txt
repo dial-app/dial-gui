@@ -1,3 +1,0 @@
-[gui_scripts]
-dial = dial_gui.__main__:main
-
