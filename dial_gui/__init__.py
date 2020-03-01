@@ -5,7 +5,7 @@
 __author__ = "David Afonso"
 __license__ = "GPL"
 __maintainer__ = __author__
-__url__ = "https://github.com/dial-app/dial_gui"
+__url__ = "https://github.com/dial-app/dial-gui"
 __version__ = "0.5a0"
 __description__ = "GUI for the Dial Framework"
 
