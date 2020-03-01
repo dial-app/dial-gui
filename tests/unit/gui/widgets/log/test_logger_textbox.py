@@ -2,7 +2,7 @@
 
 import pytest
 
-from dial.gui.widgets.log import LoggerTextboxFactory
+from dial_gui.widgets.log import LoggerTextboxFactory
 
 
 @pytest.fixture
