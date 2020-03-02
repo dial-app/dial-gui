@@ -6,8 +6,8 @@ from PySide2.QtCore import QSize
 from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
 
 from dial_core.utils import log
-from dial_gui import __version__
 from dial_gui.node_editor import NodeEditorWindow
+from dial_gui.utils import application
 from dial_gui.widgets.menus import FileMenu
 
 if TYPE_CHECKING:
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
 
     def __setup_ui(self):
         # Set window title
-        self.setWindowTitle("Dial " + __version__)
+        self.setWindowTitle(f"Dial {application.version()}")
 
         # Configure menu and status bars
         self.setMenuBar(self.__main_menu_bar)

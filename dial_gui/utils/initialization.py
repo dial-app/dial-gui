@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 import dial_core
 from dial_core.utils import log
-from dial_gui import __requirements__
 
 if TYPE_CHECKING:
     import argparse
@@ -47,9 +46,6 @@ def __gui_initialization(args: "argparse.Namespace"):
 
     Args:
         args: App configuration namespace."""
-
-    dial_core.utils.initialization.check_required_modules(__requirements__)
-
     # State the signals handled by this application
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
