@@ -12,7 +12,7 @@ repository = "https://github.com/dial-app/dial-gui"
 homepage = "https://github.com/dial-app/dial-gui"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6, <3.8"
 toml = "^0.10.0"
 
 dial-core = "^0.6a0"
