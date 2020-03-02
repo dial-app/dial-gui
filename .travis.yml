@@ -12,8 +12,7 @@ addons:
       - libxkbcommon-x11-0
 
 install:
-  - pip install tox-travis
-  - pip install codecov
+  - pip install poetry tox tox-travis codecov
 
 script:
   - tox
