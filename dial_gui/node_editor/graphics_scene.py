@@ -61,6 +61,8 @@ class GraphicsScene(QGraphicsScene):
     @log_on_end(DEBUG, "{node} added as a GraphicNode.")
     def add_node_to_graphics(self, node: "Node") -> "GraphicsNode":
         """Add a new Node to the GraphicsScene, making it visible."""
+        self.__scene.add_node(node)
+
         graphics_node = GraphicsNode(node)
         self.addItem(graphics_node)
 

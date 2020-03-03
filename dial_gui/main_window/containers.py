@@ -6,7 +6,7 @@ Dependency Injection containers.
 
 import dependency_injector.providers as providers
 
-from dial_core.project import ProjectManagerSingleton
+from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.widgets.log import LoggerDialogFactory
 
 from .main_menubar import MainMenuBar
@@ -18,5 +18,5 @@ MainWindowFactory = providers.Factory(
     MainWindow,
     menubar_factory=MainMenuBarFactory,
     logger_dialog=LoggerDialogFactory,
-    project_manager=ProjectManagerSingleton,
+    project_manager=ProjectManagerGUISingleton,
 )
