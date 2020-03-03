@@ -1,6 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 
+from .containers import DefaultGraphicsSceneFactory
 from .graphics_connection import GraphicsConnection
 from .graphics_node import GraphicsNode
 from .graphics_port import GraphicsPort
@@ -15,4 +16,5 @@ __all__ = [
     "NodeEditorWindow",
     "NodeEditorView",
     "GraphicsPort",
+    "DefaultGraphicsSceneFactory",
 ]

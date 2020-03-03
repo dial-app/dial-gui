@@ -6,10 +6,15 @@ Dependency Injection containers.
 
 import dependency_injector.providers as providers
 
-from dial_core.project import Project
+from dial_gui.node_editor import DefaultGraphicsSceneFactory
 
+from .project_gui import ProjectGUI
 from .project_manager_gui import ProjectManagerGUI
 
+DefaultProjectGUI = providers.Factory(
+    ProjectGUI, name="Default Project", graphics_scene=DefaultGraphicsSceneFactory
+)
+
 ProjectManagerGUISingleton = providers.Singleton(
-    ProjectManagerGUI, default_project=Project()
+    ProjectManagerGUI, default_project=DefaultProjectGUI
 )

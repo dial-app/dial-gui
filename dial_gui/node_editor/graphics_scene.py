@@ -50,14 +50,6 @@ class GraphicsScene(QGraphicsScene):
         """Returns the scene attached to this graphics scene."""
         return self.__scene
 
-    def __setup_ui(self):
-        """Configure the graphics scene object."""
-        self.setBackgroundBrush(self._color_background)
-
-        self.setSceneRect(
-            -self.width // 2, -self.height // 2, self.width, self.height,
-        )
-
     @log_on_end(DEBUG, "{node} added as a GraphicNode.")
     def add_node_to_graphics(self, node: "Node") -> "GraphicsNode":
         """Add a new Node to the GraphicsScene, making it visible."""
@@ -83,6 +75,22 @@ class GraphicsScene(QGraphicsScene):
 
         painter.setPen(self._pen_dark)
         painter.drawLines(dark_lines)
+
+    # TODO: Implement PIckle
+    def __getstate__(self):
+        return {"hola": "hue"}
+
+    # TODO: Implement PICKle
+    def __setstate__(self, newstate):
+        pass
+
+    def __setup_ui(self):
+        """Configure the graphics scene object."""
+        self.setBackgroundBrush(self._color_background)
+
+        self.setSceneRect(
+            -self.width // 2, -self.height // 2, self.width, self.height,
+        )
 
     def __calculate_grid_boundaries(self, rect: "QRectF") -> "QRect":
         """Calculates the grid boundaries from the rect."""

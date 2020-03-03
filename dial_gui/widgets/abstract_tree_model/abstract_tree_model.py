@@ -25,14 +25,14 @@ class AbstractTreeNode:
     tree-based hierarchy of nodes.
 
     Each node must have a parent and can have several children (or leaves).
+
+    Attributes:
+        values: Data to store on the node.
+        parent: The parent node of this node.
+        leaves: The children nodes of this node.
     """
 
     def __init__(self, values: List[Any], parent: Optional["AbstractTreeNode"] = None):
-        """
-        Args:
-            values: Data to store on the node.
-            parent: The parent node of this node.
-        """
         self.values = values
         self.parent = parent
         self.leaves: List["AbstractTreeNode"] = []
