@@ -1,5 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+from copy import deepcopy
+
 import math
 from typing import TYPE_CHECKING, List, Tuple
 
@@ -76,13 +78,29 @@ class GraphicsScene(QGraphicsScene):
         painter.setPen(self._pen_dark)
         painter.drawLines(dark_lines)
 
-    # TODO: Implement PIckle
     def __getstate__(self):
-        return {"hola": "hue"}
+        """Return a pickable dict representing the GraphicsScene object."""
+        return {"scene": self.__scene}
 
-    # TODO: Implement PICKle
-    def __setstate__(self, newstate):
-        pass
+    def __setstate__(self, new_state: dict):
+        """Composes a GraphicsScene object from a pickled dict."""
+        self.__scene = new_state["scene"]
+
+    def __deepcopy__(self, memo: dict):
+        """Performs a Deep Copy of the GraphicsScene object.
+
+        Important:
+            The __init__ method must be EXPLICITLY called.
+        """
+        cls = self.__class__
+        result = cls.__new__(cls)
+
+        memo[id(self)] = result
+
+        result.__init__(deepcopy(self.scene, memo))
+
+        return result
+
 
     def __setup_ui(self):
         """Configure the graphics scene object."""
