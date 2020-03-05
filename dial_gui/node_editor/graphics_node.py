@@ -179,6 +179,12 @@ class GraphicsNode(QGraphicsObject):
         if event.button() == Qt.LeftButton:
             self.__toggle_widget_dialog(event)
 
+    def __getstate__(self):
+        return {"node": self.__node}
+
+    def __setstate__(self, new_state: dict):
+        self.__node = new_state["node"]
+
     def __toggle_widget_dialog(self, event: "QMouseEvent"):
         """Shows the Node `inner_widget` on a new dialog. The content of the node is
         substituted with a button that hides the dialog and shows the inner_widget back

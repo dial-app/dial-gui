@@ -1,7 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 from enum import Enum
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QBrush, QColor, QPainter, QPen
@@ -46,15 +46,14 @@ class GraphicsPort(QGraphicsItem):
         self,
         port: "Port",
         port_name_position: "PortNamePosition",
-        parent: "GraphicsNode",
+        parent: "GraphicsNode" = None,
     ):
         super().__init__(parent)
 
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-
-        self.graphics_node = parent
-
         self.setCursor(Qt.ArrowCursor)
+
+        self.__graphics_node = parent
 
         self.__port = port
 
@@ -103,9 +102,18 @@ class GraphicsPort(QGraphicsItem):
         """Returns a list of the GraphicsConnections item connected to this port."""
         return self.__connections
 
+    @property
+    def graphics_node(self) -> Optional["GraphicsNode"]:
+        """Returns the parent GraphicsNode where this port is located."""
+        return self.__graphics_node
+
     def pos(self) -> "QPointF":
         """Returns the position of the GraphicsPort (In terms of scene coordinates)."""
-        return self.graphics_node.pos() + super().pos()
+        return (
+            self.graphics_node.pos() + super().pos()
+            if self.graphics_node
+            else super().pos()
+        )
 
     def add_connection(self, connection_item: "GraphicsConnection"):
         """Adds a new GraphicsConnection item to the list of connections.
@@ -140,6 +148,24 @@ class GraphicsPort(QGraphicsItem):
             -self.radius - self.margin,
             2 * self.radius + 2 * self.margin,
             2 * self.radius + 2 * self.margin,
+        )
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["_GraphicsPort__port_name"]
+        del state["outline_pen"]
+        del state["background_brush"]
+        del state["dashed_outline_pen"]
+
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+        self.__init__(
+            state["_GraphicsPort__port"],
+            state["_GraphicsPort__port_name_position"],
+            state["_GraphicsPort__graphics_node"],
         )
 
     def paint(

@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from dial_core.node_editor import Scene
-
 from .context_menu import DialContextMenu
-from .graphics_scene import GraphicsScene
 from .node_editor_view import NodeEditorView
+
+# from dial_core.node_editor import Node
+
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QTabWidget
@@ -35,6 +35,8 @@ class NodeEditorWindow(QWidget):
         self.__node_editor_view.setScene(self.__graphics_scene)
 
         self.__setup_ui()
+
+        # self.__graphics_scene.add_node_to_graphics(Node(title="heuhuehue"))
 
         # self.add_example_nodes()
 

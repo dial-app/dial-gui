@@ -1,8 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-from copy import deepcopy
-
 import math
+from copy import deepcopy
 from typing import TYPE_CHECKING, List, Tuple
 
 from PySide2.QtCore import QLine, QRect
@@ -100,7 +99,6 @@ class GraphicsScene(QGraphicsScene):
         result.__init__(deepcopy(self.scene, memo))
 
         return result
-
 
     def __setup_ui(self):
         """Configure the graphics scene object."""
