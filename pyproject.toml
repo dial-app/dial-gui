@@ -33,6 +33,7 @@ tox = "^3.14.5"
 docstr-coverage = "^1.0.5"
 taskipy = "^1.1.3"
 pytest-qt = "^3.3.0"
+mkdocs = "^1.1"
 
 [tool.taskipy.tasks]
 dial = "python -m dial_gui -d"
