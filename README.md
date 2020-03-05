@@ -1,5 +1,5 @@
-# dial
-GUI for the __dial-core__ node-based framework.
+# dial-gui
+GUI for the __dial-core__ framework.
 
 | Build | Coverage | Quality | Version | Python | Docs | License |
 |-------|----------|---------|---------|--------|------|---------|
