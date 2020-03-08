@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
+from dial_core.node_editor import Node
+
 from .context_menu import DialContextMenu
 from .node_editor_view import NodeEditorView
-
-# from dial_core.node_editor import Node
-
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QTabWidget
     from PySide2.QtGui import QContextMenuEvent
     from dial_core.project import ProjectManager
+    from dial_gui.project import ProjectGUI
 
 
 class NodeEditorWindow(QWidget):
@@ -36,9 +36,11 @@ class NodeEditorWindow(QWidget):
 
         self.__setup_ui()
 
-        # self.__graphics_scene.add_node_to_graphics(Node(title="heuhuehue"))
+        self.__graphics_scene.add_node_to_graphics(Node(title="heuhuehue"))
 
         # self.add_example_nodes()
+
+        self.__project_manager.new_project_added.connect(self.__new_project_added)
 
         self.show()
 
@@ -57,6 +59,10 @@ class NodeEditorWindow(QWidget):
             node_editor_view=self.__node_editor_view,
         )
         menubar.popup(event.globalPos())
+
+    def __new_project_added(self, new_project: "ProjectGUI"):
+        print("New project added")
+        self.__node_editor_view.setScene(new_project.graphics_scene)
 
     # # TODO: Remove from here
     # def add_example_nodes(self):

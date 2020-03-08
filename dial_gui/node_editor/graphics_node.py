@@ -180,10 +180,13 @@ class GraphicsNode(QGraphicsObject):
             self.__toggle_widget_dialog(event)
 
     def __getstate__(self):
-        return {"node": self.__node}
+        return {"node": self.__node, "pos": self.pos()}
 
     def __setstate__(self, new_state: dict):
-        self.__node = new_state["node"]
+        new_state["node"].__init__("asdf")
+        self.__init__(new_state["node"])  # type: ignore
+
+        self.setPos(new_state["pos"])
 
     def __toggle_widget_dialog(self, event: "QMouseEvent"):
         """Shows the Node `inner_widget` on a new dialog. The content of the node is

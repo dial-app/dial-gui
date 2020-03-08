@@ -151,21 +151,15 @@ class GraphicsPort(QGraphicsItem):
         )
 
     def __getstate__(self):
-        state = self.__dict__.copy()
-        del state["_GraphicsPort__port_name"]
-        del state["outline_pen"]
-        del state["background_brush"]
-        del state["dashed_outline_pen"]
-
-        return state
+        return {
+            "port": self.__port,
+            "port_name_position": self.__port_name_position,
+            "graphics_node": self.__graphics_node,
+        }
 
     def __setstate__(self, state):
-        self.__dict__.update(state)
-
         self.__init__(
-            state["_GraphicsPort__port"],
-            state["_GraphicsPort__port_name_position"],
-            state["_GraphicsPort__graphics_node"],
+            state["port"], state["port_name_position"], state["graphics_node"],
         )
 
     def paint(

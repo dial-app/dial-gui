@@ -1,23 +1,27 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-from typing import TYPE_CHECKING
-
-from PySide2.QtCore import QObject, Slot
+from PySide2.QtCore import QObject, Signal, Slot
 from PySide2.QtWidgets import QFileDialog, QWidget
 
 from dial_core.project import ProjectManager
 from dial_core.utils import log
 
-if TYPE_CHECKING:
-    from .project_gui import ProjectGUI
+from .project_gui import ProjectGUI
 
 LOGGER = log.get_logger(__name__)
 
 
 class ProjectManagerGUI(QObject, ProjectManager):
+    new_project_added = Signal(ProjectGUI)
+
     def __init__(self, default_project: "ProjectGUI", parent=None):
         QObject.__init__(self, parent)
         ProjectManager.__init__(self, default_project)
+
+    def add_project(self, project: "ProjectGUI"):
+        super().add_project(project)
+
+        self.new_project_added.emit(project)
 
     @Slot()
     def open_project(self):

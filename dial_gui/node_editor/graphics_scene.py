@@ -43,6 +43,10 @@ class GraphicsScene(QGraphicsScene):
         self._pen_dark = QPen(self._color_dark)
         self._pen_dark.setWidth(2)
 
+        # Populate the graphics scene
+        for node in self.__scene:
+            self.addItem(self.__create_new_graphics_node_from(node))
+
         # UI
         self.__setup_ui()
 
@@ -56,7 +60,7 @@ class GraphicsScene(QGraphicsScene):
         """Add a new Node to the GraphicsScene, making it visible."""
         self.__scene.add_node(node)
 
-        graphics_node = GraphicsNode(node)
+        graphics_node = self.__create_new_graphics_node_from(node)
         self.addItem(graphics_node)
 
         return graphics_node
@@ -83,7 +87,8 @@ class GraphicsScene(QGraphicsScene):
 
     def __setstate__(self, new_state: dict):
         """Composes a GraphicsScene object from a pickled dict."""
-        self.__scene = new_state["scene"]
+        print("Loaded scene", new_state["scene"].nodes)
+        self.__init__(new_state["scene"])  # type: ignore
 
     def __deepcopy__(self, memo: dict):
         """Performs a Deep Copy of the GraphicsScene object.
@@ -107,6 +112,9 @@ class GraphicsScene(QGraphicsScene):
         self.setSceneRect(
             -self.width // 2, -self.height // 2, self.width, self.height,
         )
+
+    def __create_new_graphics_node_from(self, node: "Node") -> "GraphicsNode":
+        return GraphicsNode(node)
 
     def __calculate_grid_boundaries(self, rect: "QRectF") -> "QRect":
         """Calculates the grid boundaries from the rect."""
