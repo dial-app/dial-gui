@@ -150,16 +150,14 @@ class GraphicsPort(QGraphicsItem):
             2 * self.radius + 2 * self.margin,
         )
 
-    def __getstate__(self):
-        return {
-            "port": self.__port,
-            "port_name_position": self.__port_name_position,
-            "graphics_node": self.__graphics_node,
-        }
+    def __setstate__(self, new_state):
+        self.__connections = new_state["connections"]
 
-    def __setstate__(self, state):
-        self.__init__(
-            state["port"], state["port_name_position"], state["graphics_node"],
+    def __reduce__(self):
+        return (
+            GraphicsPort,
+            (self.__port, self.__port_name_position, self.__graphics_node),
+            {"connections": self.__connections},
         )
 
     def paint(

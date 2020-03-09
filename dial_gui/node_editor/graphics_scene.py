@@ -24,6 +24,7 @@ class GraphicsScene(QGraphicsScene):
         super().__init__(parent)
 
         self.__scene = scene
+        self.__graphics_nodes = []
 
         # Settings
         self.width = 64000
@@ -45,7 +46,9 @@ class GraphicsScene(QGraphicsScene):
 
         # Populate the graphics scene
         for node in self.__scene:
-            self.addItem(self.__create_new_graphics_node_from(node))
+            graphics_node = self.__create_new_graphics_node_from(node)
+            self.addItem(graphics_node)
+            self.__graphics_nodes.append(graphics_node)
 
         # UI
         self.__setup_ui()
@@ -61,6 +64,8 @@ class GraphicsScene(QGraphicsScene):
         self.__scene.add_node(node)
 
         graphics_node = self.__create_new_graphics_node_from(node)
+
+        self.__graphics_nodes.append(graphics_node)
         self.addItem(graphics_node)
 
         return graphics_node
@@ -81,14 +86,20 @@ class GraphicsScene(QGraphicsScene):
         painter.setPen(self._pen_dark)
         painter.drawLines(dark_lines)
 
-    def __getstate__(self):
-        """Return a pickable dict representing the GraphicsScene object."""
-        return {"scene": self.__scene}
-
     def __setstate__(self, new_state: dict):
         """Composes a GraphicsScene object from a pickled dict."""
-        print("Loaded scene", new_state["scene"].nodes)
-        self.__init__(new_state["scene"])  # type: ignore
+        # Reset some settings from the old graphics items
+        for new_graphics_node, old_graphics_node in zip(
+            self.__graphics_nodes, new_state["graphics_nodes"]
+        ):
+            new_graphics_node.setPos(old_graphics_node.pos())
+
+    def __reduce__(self):
+        return (
+            GraphicsScene,
+            (self.__scene,),
+            {"graphics_nodes": self.__graphics_nodes},
+        )
 
     def __deepcopy__(self, memo: dict):
         """Performs a Deep Copy of the GraphicsScene object.

@@ -14,8 +14,5 @@ class ProjectGUI(Project):
     def graphics_scene(self):
         return self.__graphics_scene
 
-    def __getstate__(self):
-        return {"name": self.name, "graphics_scene": self.__graphics_scene}
-
-    def __setstate__(self, new_state):
-        self.__init__(new_state["name"], new_state["graphics_scene"])
+    def __reduce__(self):
+        return (ProjectGUI, (self.name, self.__graphics_scene))

@@ -179,14 +179,19 @@ class GraphicsNode(QGraphicsObject):
         if event.button() == Qt.LeftButton:
             self.__toggle_widget_dialog(event)
 
-    def __getstate__(self):
-        return {"node": self.__node, "pos": self.pos()}
-
     def __setstate__(self, new_state: dict):
-        new_state["node"].__init__("asdf")
-        self.__init__(new_state["node"])  # type: ignore
-
         self.setPos(new_state["pos"])
+
+        self.prepareGeometryChange()
+        # self.__node_widget_proxy.setGeometry(new_state["proxy_geometry"])
+        self.__node_widget_proxy.resize(500, 200)
+
+    def __reduce__(self):
+        return (
+            GraphicsNode,
+            (self.__node, None),
+            {"pos": self.pos(), "proxy_geometry": self.__node_widget_proxy.geometry()},
+        )
 
     def __toggle_widget_dialog(self, event: "QMouseEvent"):
         """Shows the Node `inner_widget` on a new dialog. The content of the node is

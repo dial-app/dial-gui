@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from dial_core.node_editor import Node
+from dial_core.node_editor import InputPort, Node, OutputPort
 
 from .context_menu import DialContextMenu
 from .node_editor_view import NodeEditorView
@@ -36,7 +36,11 @@ class NodeEditorWindow(QWidget):
 
         self.__setup_ui()
 
-        self.__graphics_scene.add_node_to_graphics(Node(title="heuhuehue"))
+        node = Node(title="hueheuheu")
+        node.add_input_port(InputPort(name="asdf", port_type=int))
+        node.add_output_port(OutputPort(name="outut", port_type=str))
+
+        self.__graphics_scene.add_node_to_graphics(node)
 
         # self.add_example_nodes()
 
