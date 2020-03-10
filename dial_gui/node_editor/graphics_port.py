@@ -154,7 +154,6 @@ class GraphicsPort(QGraphicsItem):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._port == other._port
-        print("asdf")
 
     def paint(
         self,

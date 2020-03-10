@@ -7,6 +7,7 @@ from PySide2.QtCore import QPointF
 
 def test_graphics_port_attributes(qtbot, graphics_port_a):
     assert hasattr(graphics_port_a, "name")
+    assert hasattr(graphics_port_a, "port_type")
     assert hasattr(graphics_port_a, "graphics_connections")
     assert hasattr(graphics_port_a, "graphics_node")
     assert hasattr(graphics_port_a, "radius")
