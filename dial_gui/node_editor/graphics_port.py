@@ -1,19 +1,20 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 
-from PySide2.QtCore import QRectF, Qt
-from PySide2.QtGui import QBrush, QColor, QPainter, QPen
-from PySide2.QtWidgets import QGraphicsItem, QGraphicsTextItem
+import dependency_injector.providers as providers
+from PySide2.QtCore import QRectF
+from PySide2.QtWidgets import QGraphicsItem
 
 from dial_core.node_editor import Port
 
-from .type_colors import TypeColor
+from .graphics_port_painter import GraphicsPortPainterFactory
 
 if TYPE_CHECKING:
     from .graphics_connection import GraphicsConnection
     from .graphics_node import GraphicsNode
+    from PySide2.QtGui import QPainter
     from PySide2.QtCore import QPointF
     from PySide2.QtWidgets import QWidget, QStyleOptionGraphicsItem
 
@@ -35,67 +36,35 @@ class GraphicsPort(QGraphicsItem):
         Normal = 0
         Dragging = 1
 
-    class PortNamePosition(Enum):
-        Left = 0
-        Right = 1
-
     drawing_state = DrawingState.Normal
     drawing_type = None
 
     def __init__(
         self,
         port: "Port",
-        port_name_position: "PortNamePosition",
+        graphics_port_painter_factory,
         parent: "GraphicsNode" = None,
     ):
         super().__init__(parent)
 
-        self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-        self.setCursor(Qt.ArrowCursor)
-
         self.__graphics_node = parent
 
-        self.__port = port
+        self._port = port
 
         # Add add an instance attribute to this GraphicsPort.
-        self.__port.graphics_port = self  # type: ignore
+        self._port.graphics_port = self  # type: ignore
 
         self.__connections: Set["GraphicsConnection"] = set()
 
         self.radius = 8
         self.margin = 12
 
-        self.__port_name_position = port_name_position
-        self.__port_name = QGraphicsTextItem(parent=self)
-        self.__port_name.setPlainText(self.__port.name)
-        self.__port_name.setDefaultTextColor("#FFFFFF")
-        self.__port_name.setFlag(QGraphicsItem.ItemStacksBehindParent)
-
-        if self.__port_name_position == self.PortNamePosition.Left:
-            self.__port_name.setPos(-self.__port_name.boundingRect().width() - 3, 1)
-        elif self.__port_name_position == self.PortNamePosition.Right:
-            self.__port_name.setPos(3, 1)
-
-        # Colors/Pens/Brushes
-        self.__color = TypeColor.get_color_for(port.port_type)
-
-        self.outline_pen = QPen(self.__color.darker())
-        self.outline_pen.setWidthF(2)
-        self.background_brush = QBrush(self.__color)
-
-        self.dashed_outline_pen = QPen(self.__color)
-        self.dashed_outline_pen.setStyle(Qt.DashLine)
-        self.dashed_outline_pen.setWidth(2)
+        self.__graphics_port_painter = graphics_port_painter_factory(graphics_port=self)
 
     @property
-    def color(self) -> "QColor":
-        """Returns the color of the port."""
-        return self.__color
-
-    @property
-    def port(self):
+    def port(self):  # TODO: Eventually remove
         """Returns the port associated to this GraphicsItem."""
-        return self.__port
+        return self._port
 
     @property
     def connections(self) -> Set["GraphicsConnection"]:
@@ -121,6 +90,20 @@ class GraphicsPort(QGraphicsItem):
         Args:
             connection_item: A GraphicsConnection object.
         """
+
+        # If both ports are connected, connect the inner port objects
+        if connection_item.start_graphics_port and connection_item.end_graphics_port:
+            start_port = connection_item.start_graphics_port.port
+            end_port = connection_item.end_graphics_port.port
+
+            if self.port is start_port:
+                self.port.connect_to(end_port)
+            elif self.port is end_port:
+                self.port.connect_to(start_port)
+            else:
+                #  TODO: Raise exception
+                print("This GraphicsConnection object doesn't belong to this port!")
+
         self.__connections.add(connection_item)
 
     def remove_connection(self, connection_item: "GraphicsConnection"):
@@ -150,14 +133,18 @@ class GraphicsPort(QGraphicsItem):
             2 * self.radius + 2 * self.margin,
         )
 
-    def __setstate__(self, new_state):
-        self.__connections = new_state["connections"]
+    def __gestate__(self) -> Dict[str, Any]:
+        return {"connections": self.__connections}
+
+    def __setstate__(self, new_state: Dict[str, Any]):
+        pass
+        # self.__connections = new_state["connections"]
 
     def __reduce__(self):
         return (
             GraphicsPort,
-            (self.__port, self.__port_name_position, self.__graphics_node),
-            {"connections": self.__connections},
+            (self._port, self.__port_name_position, self.__graphics_node),
+            self.__getstate__(),
         )
 
     def paint(
@@ -167,16 +154,9 @@ class GraphicsPort(QGraphicsItem):
         widget: "QWidget" = None,
     ):
         """Paints the port."""
-        painter.setPen(self.outline_pen)
-        painter.setBrush(self.background_brush)
-        painter.drawEllipse(
-            -self.radius, -self.radius, 2 * self.radius, 2 * self.radius
-        )
+        self.__graphics_port_painter.paint(painter, option, widget)
 
-        if (
-            GraphicsPort.drawing_state == GraphicsPort.DrawingState.Dragging
-            and self.port.port_type == GraphicsPort.drawing_type
-        ):
-            painter.setPen(self.dashed_outline_pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawEllipse(self.boundingRect())
+
+GraphicsPortFactory = providers.Factory(
+    GraphicsPort, graphics_port_painter_factory=GraphicsPortPainterFactory.delegate()
+)

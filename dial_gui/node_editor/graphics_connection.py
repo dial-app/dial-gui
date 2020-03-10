@@ -123,20 +123,23 @@ class GraphicsConnection(QGraphicsPathItem):
 
     @start_graphics_port.setter
     # @log_on_end(INFO, "{self} connected to Start Port {port}")
-    def start_graphics_port(self, port: "GraphicsPort"):
+    def start_graphics_port(self, port: Optional["GraphicsPort"]):
         """Sets the start of this connection to the `port` position.
 
         The connection adopts the color of the start port.
         """
-        # Updates the start position
-        self.__start = port.pos()
+        if not port:
+            self.start = self.__start
+        else:
+            # Updates the start position
+            self.__start = port.pos()
 
-        # Assigns a new start port
-        self.__start_graphics_port = port
-        self.__start_graphics_port.add_connection(self)
+            # Assigns a new start port
+            self.__start_graphics_port = port
+            self.__start_graphics_port.add_connection(self)
 
-        # The connection adopts the color of the port
-        self.color = port.color
+            # The connection adopts the color of the port
+            self.color = port.color
 
         self.__update_path()
 
@@ -149,12 +152,15 @@ class GraphicsConnection(QGraphicsPathItem):
     # @log_on_end(INFO, "{self} connected to End Port {port}")
     def end_graphics_port(self, port: "GraphicsPort"):
         """Sets the end of this connection to the `port` position."""
-        # Updates the end position
-        self.__end = port.pos()
+        if not port:
+            self.end = self.__end
+        else:
+            # Updates the end position
+            self.__end = port.pos()
 
-        # Assigns a new end port
-        self.__end_graphics_port = port
-        self.__end_graphics_port.add_connection(self)
+            # Assigns a new end port
+            self.__end_graphics_port = port
+            self.__end_graphics_port.add_connection(self)
 
         self.__update_path()
 
@@ -194,6 +200,20 @@ class GraphicsConnection(QGraphicsPathItem):
         path_stroker = QPainterPathStroker()
         path_stroker.setWidth(self.margin)
         return path_stroker.createStroke(self.path())
+
+    def __setstate__(self, new_state: dict):
+        self.start_graphics_port = new_state["start_graphics_port"]
+        self.end_graphics_port = new_state["end_graphics_port"]
+
+    def __reduce__(self):
+        return (
+            GraphicsConnection,
+            (),
+            {
+                "start_graphics_port": self.__start_graphics_port,
+                "end_graphics_port": self.__end_graphics_port,
+            },
+        )
 
     def paint(
         self,

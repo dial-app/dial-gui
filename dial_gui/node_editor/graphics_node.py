@@ -18,7 +18,11 @@ from PySide2.QtWidgets import (
 
 from dial_gui.event_filters import ResizableItemEventFilter
 
-from .graphics_port import GraphicsPort
+from .graphics_port import GraphicsPortFactory
+from .graphics_port_painter import (
+    InputGraphicsPortPainterFactory,
+    OutputGraphicsPortPainterFactory,
+)
 
 if TYPE_CHECKING:
     from PySide2.QtCore import QRectF
@@ -26,6 +30,7 @@ if TYPE_CHECKING:
 
     from dial_core.node_editor import Node
     from PySide2.QtWidgets import QStyleOptionGraphicsItem, QGraphicsSceneMouseEvent
+    from dial_gui.node_editor import GraphicsPort  # noqa: F401
 
 
 class GraphicsNode(QGraphicsObject):
@@ -47,7 +52,6 @@ class GraphicsNode(QGraphicsObject):
         self.__state = self.State.NoFlags
 
         self.__resizable_item_event_filter = ResizableItemEventFilter(parent=self)
-
         self.installEventFilter(self.__resizable_item_event_filter)
 
         # Graphic items
@@ -73,9 +77,6 @@ class GraphicsNode(QGraphicsObject):
         self.outline_default_color = QColor("#000000")
 
         self.__outline_pen = QPen(self.outline_default_color)
-
-        # Connections
-        # self.node.title_changed.connect(self.__update_title)
 
         self.__setup_ui()
         self.__create_graphic_ports()
@@ -113,10 +114,14 @@ class GraphicsNode(QGraphicsObject):
     def __create_graphic_ports(self):
         """Adds new GraphicsPort items at each side of the node."""
 
-        def create_ports(ports_dict, port_name_position, x_offset):
+        def create_ports(ports_dict, painter_factory, x_offset):
             graphics_ports = []
             for i, port in enumerate(ports_dict.values()):
-                graphics_port = GraphicsPort(port, port_name_position, parent=self)
+                graphics_port = GraphicsPortFactory(
+                    port=port,
+                    graphics_port_painter_factory=painter_factory,
+                    parent=self,
+                )
                 graphics_port.setPos(
                     x_offset,
                     self.__title_height()
@@ -128,12 +133,12 @@ class GraphicsNode(QGraphicsObject):
             return graphics_ports
 
         self.__input_graphics_ports = create_ports(
-            self.node.inputs, GraphicsPort.PortNamePosition.Left, x_offset=0
+            self.node.inputs, InputGraphicsPortPainterFactory, x_offset=0
         )
 
         self.__output_graphics_ports = create_ports(
             self.node.outputs,
-            GraphicsPort.PortNamePosition.Right,
+            OutputGraphicsPortPainterFactory,
             x_offset=self.boundingRect().width(),
         )
 
@@ -186,11 +191,21 @@ class GraphicsNode(QGraphicsObject):
         # self.__node_widget_proxy.setGeometry(new_state["proxy_geometry"])
         self.__node_widget_proxy.resize(500, 200)
 
+        print("Current inputs", self.__input_graphics_ports)
+        print("Current outputs", self.__output_graphics_ports)
+        print("Old inputs", new_state["inputs"])
+        print("Old outputs", new_state["outputs"])
+
     def __reduce__(self):
         return (
             GraphicsNode,
             (self.__node, None),
-            {"pos": self.pos(), "proxy_geometry": self.__node_widget_proxy.geometry()},
+            {
+                "pos": self.pos(),
+                "proxy_geometry": self.__node_widget_proxy.geometry(),
+                "inputs": self.__input_graphics_ports,
+                "outputs": self.__output_graphics_ports,
+            },
         )
 
     def __toggle_widget_dialog(self, event: "QMouseEvent"):

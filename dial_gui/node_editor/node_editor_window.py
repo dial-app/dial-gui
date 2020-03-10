@@ -40,7 +40,12 @@ class NodeEditorWindow(QWidget):
         node.add_input_port(InputPort(name="asdf", port_type=int))
         node.add_output_port(OutputPort(name="outut", port_type=str))
 
+        node2 = Node(title="hahaha")
+        node2.add_input_port(InputPort(name="inn", port_type=str))
+        node2.add_input_port(InputPort(name="inn2", port_type=str))
+
         self.__graphics_scene.add_node_to_graphics(node)
+        self.__graphics_scene.add_node_to_graphics(node2)
 
         # self.add_example_nodes()
 
