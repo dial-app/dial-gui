@@ -2,15 +2,19 @@
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from PySide2.QtCore import QPointF, Qt
-from PySide2.QtGui import QColor, QPainterPath, QPainterPathStroker, QPen
+import dependency_injector.providers as providers
+from PySide2.QtCore import QPointF
+from PySide2.QtGui import QPainterPath, QPainterPathStroker
 from PySide2.QtWidgets import QGraphicsItem, QGraphicsPathItem
+
+from .graphics_connection_painter import GraphicsConnectionPainterFactory
 
 if TYPE_CHECKING:
     from PySide2.QtGui import QPainter
     from PySide2.QtCore import QRectF
     from PySide2.QtWidgets import QWidget, QStyleOptionGraphicsItem
     from .graphics_port import GraphicsPort
+    from .graphics_connection_painter import GraphicsConnectionPainter
 
 
 class GraphicsConnection(QGraphicsPathItem):
@@ -29,14 +33,16 @@ class GraphicsConnection(QGraphicsPathItem):
 
     """
 
-    def __init__(self, parent: "QGraphicsItem" = None):
+    def __init__(
+        self, painter_factory: "providers.Factory", parent: "QGraphicsItem" = None,
+    ):
         super().__init__(parent)
 
         # A Connection can be selectable
         self.setFlag(QGraphicsItem.ItemIsSelectable)
 
         self.width = 4
-        self.margin = 20
+        self.clickable_margin = 20
 
         self.__start = QPointF(0, 0)
         self.__end = QPointF(0, 0)
@@ -44,36 +50,21 @@ class GraphicsConnection(QGraphicsPathItem):
         self.__start_graphics_port: Optional["GraphicsPort"] = None
         self.__end_graphics_port: Optional["GraphicsPort"] = None
 
-        # Colors/Pens/Brushes
-        self.__color = QColor("black")
-
-        self.__default_pen = QPen(self.color)
-        self.__default_pen.setWidth(self.width)
+        self._graphics_connection_painter = painter_factory(graphics_connection=self)
 
         # Draw connections always on bottom
         self.setZValue(-1)
 
-        self.update()
+        self._update_path()
 
     @property
-    def color(self) -> "QColor":
-        """Returns the color of this connection."""
-        return self.__color
-
-    @color.setter
-    def color(self, color: "QColor"):
-        """Sets a new color for the connection, updating the QPen used for painting."""
-        self.__color = color
-        self.__default_pen.setColor(self.__color)
+    def painter(self) -> "GraphicsConnectionPainter":
+        return self._graphics_connection_painter
 
     @property
     def start(self) -> "QPointF":
         """Returns the start position coordinate of this connection."""
-        return (
-            self.__start
-            if not self.__start_graphics_port
-            else self.__start_graphics_port.pos()
-        )
+        return self.__calc_position(self.__start, self.__start_graphics_port)
 
     @start.setter
     def start(self, position: "QPointF"):
@@ -89,16 +80,12 @@ class GraphicsConnection(QGraphicsPathItem):
 
         self.__start_graphics_port = None
 
-        self.__update_path()
+        self._update_path()
 
     @property
     def end(self) -> "QPointF":
         """Returns the end position of the connection."""
-        return (
-            self.__end
-            if not self.__end_graphics_port
-            else self.__end_graphics_port.pos()
-        )
+        return self.__calc_position(self.__end, self.__end_graphics_port)
 
     @end.setter
     def end(self, position: "QPointF"):
@@ -114,7 +101,10 @@ class GraphicsConnection(QGraphicsPathItem):
 
         self.__end_graphics_port = None
 
-        self.__update_path()
+        self._update_path()
+
+    def __calc_position(self, pos: "QPointF", port: Optional["GraphicsPort"]):
+        return pos if not port else port.pos()
 
     @property
     def start_graphics_port(self) -> Optional["GraphicsPort"]:
@@ -122,7 +112,6 @@ class GraphicsConnection(QGraphicsPathItem):
         return self.__start_graphics_port
 
     @start_graphics_port.setter
-    # @log_on_end(INFO, "{self} connected to Start Port {port}")
     def start_graphics_port(self, port: Optional["GraphicsPort"]):
         """Sets the start of this connection to the `port` position.
 
@@ -139,9 +128,9 @@ class GraphicsConnection(QGraphicsPathItem):
             self.__start_graphics_port.add_connection(self)
 
             # The connection adopts the color of the port
-            self.color = port.color
+            self.painter.color = port.painter.color
 
-        self.__update_path()
+        self._update_path()
 
     @property
     def end_graphics_port(self) -> Optional["GraphicsPort"]:
@@ -162,9 +151,9 @@ class GraphicsConnection(QGraphicsPathItem):
             self.__end_graphics_port = port
             self.__end_graphics_port.add_connection(self)
 
-        self.__update_path()
+        self._update_path()
 
-    def __update_path(self):
+    def _update_path(self):
         """Creates a new bezier path from `self.start` to `self.end`."""
         path = QPainterPath(self.start)
 
@@ -185,10 +174,9 @@ class GraphicsConnection(QGraphicsPathItem):
         In this case, we change the color of the connection when it's selected.
         """
         if change == self.ItemSelectedChange:
-            self.__default_pen.setColor(
-                self.color.lighter(150) if value else self.color
+            self.painter.color = (
+                self.painter.color.lighter(150) if value else self.painter.color
             )
-
             return value
 
         return super().itemChange(change, value)
@@ -198,7 +186,7 @@ class GraphicsConnection(QGraphicsPathItem):
 
     def shape(self) -> "QPainterPath":
         path_stroker = QPainterPathStroker()
-        path_stroker.setWidth(self.margin)
+        path_stroker.setWidth(self.width + self.clickable_margin)
         return path_stroker.createStroke(self.path())
 
     def __setstate__(self, new_state: dict):
@@ -223,14 +211,17 @@ class GraphicsConnection(QGraphicsPathItem):
     ):
         """Paints the connection between the start and end points."""
 
-        self.__update_path()
+        self._update_path()
 
-        painter.setPen(self.__default_pen)
-        painter.setBrush(Qt.NoBrush)
-        painter.drawPath(self.path())
+        self._graphics_connection_painter.paint(painter, option, widget)
 
     def __str__(self) -> str:
         return (
             f"{type(self).__name__} {self.start} ({self.start_graphics_port})"
             f" {self.end} ({self.end_graphics_port})"
         )
+
+
+GraphicsConnectionFactory = providers.Factory(
+    GraphicsConnection, painter_factory=GraphicsConnectionPainterFactory.delegate(),
+)

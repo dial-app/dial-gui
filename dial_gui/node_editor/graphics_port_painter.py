@@ -1,9 +1,10 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
+
 from enum import Enum
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QPointF, QRectF, Qt
+from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QBrush, QPainter, QPen
 from PySide2.QtWidgets import QGraphicsItem, QGraphicsTextItem
 
@@ -60,6 +61,10 @@ class GraphicsPortPainter:
         print(self.__port_name.pos())
 
         self.__port_name_position = position
+
+    @property
+    def color(self):
+        return self.__color
 
     def paint_area(self):
         return QRectF(

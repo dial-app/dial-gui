@@ -47,34 +47,39 @@ class GraphicsPort(QGraphicsItem):
     ):
         super().__init__(parent)
 
-        self.__graphics_node = parent
-
-        self._port = port
-
-        # Add add an instance attribute to this GraphicsPort.
-        self._port.graphics_port = self  # type: ignore
-
-        self.__connections: Set["GraphicsConnection"] = set()
-
         self.radius = 8
         self.margin = 12
+
+        self.__graphics_node = parent
+        self._port = port
+        self._port.graphics_port = self  # type: ignore
+
+        self.__graphics_connections: Set["GraphicsConnection"] = set()
 
         self.__graphics_port_painter = graphics_port_painter_factory(graphics_port=self)
 
     @property
-    def port(self):  # TODO: Eventually remove
-        """Returns the port associated to this GraphicsItem."""
-        return self._port
+    def name(self):  # TODO: Eventually remove
+        """Returns the name of the graphics port."""
+        return self._port.name
 
     @property
-    def connections(self) -> Set["GraphicsConnection"]:
-        """Returns a list of the GraphicsConnections item connected to this port."""
-        return self.__connections
+    def port_type(self):
+        return self._port.port_type
 
     @property
     def graphics_node(self) -> Optional["GraphicsNode"]:
         """Returns the parent GraphicsNode where this port is located."""
         return self.__graphics_node
+
+    @property
+    def painter(self):
+        return self.__graphics_port_painter
+
+    @property
+    def graphics_connections(self) -> Set["GraphicsConnection"]:
+        """Returns a list of the GraphicsConnections item connected to this port."""
+        return self.__graphics_connections
 
     def pos(self) -> "QPointF":
         """Returns the position of the GraphicsPort (In terms of scene coordinates)."""
@@ -96,15 +101,15 @@ class GraphicsPort(QGraphicsItem):
             start_port = connection_item.start_graphics_port.port
             end_port = connection_item.end_graphics_port.port
 
-            if self.port is start_port:
-                self.port.connect_to(end_port)
-            elif self.port is end_port:
-                self.port.connect_to(start_port)
+            if self._port is start_port:
+                self._port.connect_to(end_port)
+            elif self._port is end_port:
+                self._port.connect_to(start_port)
             else:
                 #  TODO: Raise exception
                 print("This GraphicsConnection object doesn't belong to this port!")
 
-        self.__connections.add(connection_item)
+        self.__graphics_connections.add(connection_item)
 
     def remove_connection(self, connection_item: "GraphicsConnection"):
         """Removes an existent GraphicsConnection item from the list of connections.
@@ -115,7 +120,7 @@ class GraphicsPort(QGraphicsItem):
         Args:
             connection_item: A GraphicsConnection object.
         """
-        self.__connections.discard(connection_item)
+        self.__graphics_connections.discard(connection_item)
 
     def boundingRect(self) -> "QRectF":
         """Returns an enclosing rect for the port, PLUS a margin. All the boundingRect()
@@ -134,11 +139,11 @@ class GraphicsPort(QGraphicsItem):
         )
 
     def __gestate__(self) -> Dict[str, Any]:
-        return {"connections": self.__connections}
+        return {"connections": self.__graphics_connections}
 
     def __setstate__(self, new_state: Dict[str, Any]):
         pass
-        # self.__connections = new_state["connections"]
+        # self.__graphics_connections = new_state["connections"]
 
     def __reduce__(self):
         return (

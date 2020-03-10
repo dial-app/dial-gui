@@ -8,12 +8,13 @@ from PySide2.QtWidgets import QGraphicsView
 
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
-from dial_gui.node_editor import GraphicsConnection, GraphicsPort
+from dial_gui.node_editor import GraphicsConnectionFactory, GraphicsPort
 
 if TYPE_CHECKING:
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
     from PySide2.QtWidgets import QTabWidget, QWidget
+    from dial_gui.node_editor import GraphicsConnection
 
 
 class NodeEditorView(QGraphicsView):
@@ -123,7 +124,7 @@ class NodeEditorView(QGraphicsView):
         self.new_connection.end = self.new_connection.start_graphics_port.pos()
 
         GraphicsPort.drawing_state = GraphicsPort.DrawingState.Dragging
-        GraphicsPort.drawing_type = item.port.port_type
+        GraphicsPort.drawing_type = item.port_type
         self.scene().update()
 
         # Its important to don't pass the event to parent classes to avoid selecting
@@ -186,7 +187,7 @@ class NodeEditorView(QGraphicsView):
 
     def __create_new_connection(self) -> "GraphicsConnection":
         """Create a new connection on the scene."""
-        connection = GraphicsConnection()
+        connection = GraphicsConnectionFactory()
         self.scene().addItem(connection)
 
         return connection

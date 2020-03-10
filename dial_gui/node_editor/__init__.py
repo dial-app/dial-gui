@@ -2,7 +2,7 @@
 
 
 from .containers import DefaultGraphicsSceneFactory
-from .graphics_connection import GraphicsConnection
+from .graphics_connection import GraphicsConnection, GraphicsConnectionFactory
 from .graphics_node import GraphicsNode
 from .graphics_port import GraphicsPort
 from .graphics_scene import GraphicsScene
@@ -13,6 +13,7 @@ __all__ = [
     "GraphicsNode",
     "GraphicsScene",
     "GraphicsConnection",
+    "GraphicsConnectionFactory",
     "NodeEditorWindow",
     "NodeEditorView",
     "GraphicsPort",
