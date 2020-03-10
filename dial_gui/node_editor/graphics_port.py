@@ -56,6 +56,7 @@ class GraphicsPort(QGraphicsItem):
 
         self.__graphics_connections: Set["GraphicsConnection"] = set()
 
+        self.__graphics_port_painter_factory = graphics_port_painter_factory
         self.__graphics_port_painter = graphics_port_painter_factory(graphics_port=self)
 
     @property
@@ -98,8 +99,8 @@ class GraphicsPort(QGraphicsItem):
 
         # If both ports are connected, connect the inner port objects
         if connection_item.start_graphics_port and connection_item.end_graphics_port:
-            start_port = connection_item.start_graphics_port.port
-            end_port = connection_item.end_graphics_port.port
+            start_port = connection_item.start_graphics_port._port
+            end_port = connection_item.end_graphics_port._port
 
             if self._port is start_port:
                 self._port.connect_to(end_port)
@@ -138,19 +139,22 @@ class GraphicsPort(QGraphicsItem):
             2 * self.radius + 2 * self.margin,
         )
 
-    def __gestate__(self) -> Dict[str, Any]:
-        return {"connections": self.__graphics_connections}
+    def __getstate__(self) -> Dict[str, Any]:
+        return {"connections": self.__graphics_connections, "pos": self.pos()}
 
     def __setstate__(self, new_state: Dict[str, Any]):
-        pass
-        # self.__graphics_connections = new_state["connections"]
+        self.setPos(new_state["pos"])
 
     def __reduce__(self):
         return (
             GraphicsPort,
-            (self._port, self.__port_name_position, self.__graphics_node),
+            (self._port, self.__graphics_port_painter_factory, self.__graphics_node),
             self.__getstate__(),
         )
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self._port == other._port
+        print("asdf")
 
     def paint(
         self,

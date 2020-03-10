@@ -2,16 +2,8 @@
 
 from unittest.mock import patch
 
-import pytest
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QColor, QPen
-
-from dial_gui.node_editor import GraphicsConnectionFactory
-
-
-@pytest.fixture
-def graphics_connection():
-    return GraphicsConnectionFactory()
 
 
 def test_color(graphics_connection):

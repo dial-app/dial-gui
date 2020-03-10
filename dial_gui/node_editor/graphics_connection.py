@@ -50,6 +50,7 @@ class GraphicsConnection(QGraphicsPathItem):
         self.__start_graphics_port: Optional["GraphicsPort"] = None
         self.__end_graphics_port: Optional["GraphicsPort"] = None
 
+        self._painter_factory = painter_factory
         self._graphics_connection_painter = painter_factory(graphics_connection=self)
 
         # Draw connections always on bottom
@@ -64,7 +65,7 @@ class GraphicsConnection(QGraphicsPathItem):
     @property
     def start(self) -> "QPointF":
         """Returns the start position coordinate of this connection."""
-        return self.__calc_position(self.__start, self.__start_graphics_port)
+        return self.__start
 
     @start.setter
     def start(self, position: "QPointF"):
@@ -85,7 +86,7 @@ class GraphicsConnection(QGraphicsPathItem):
     @property
     def end(self) -> "QPointF":
         """Returns the end position of the connection."""
-        return self.__calc_position(self.__end, self.__end_graphics_port)
+        return self.__end
 
     @end.setter
     def end(self, position: "QPointF"):
@@ -102,9 +103,6 @@ class GraphicsConnection(QGraphicsPathItem):
         self.__end_graphics_port = None
 
         self._update_path()
-
-    def __calc_position(self, pos: "QPointF", port: Optional["GraphicsPort"]):
-        return pos if not port else port.pos()
 
     @property
     def start_graphics_port(self) -> Optional["GraphicsPort"]:
@@ -189,19 +187,22 @@ class GraphicsConnection(QGraphicsPathItem):
         path_stroker.setWidth(self.width + self.clickable_margin)
         return path_stroker.createStroke(self.path())
 
+    def __getstate__(self):
+        return {
+            "start": self.__start,
+            "end": self.__end,
+            "start_graphics_port": self.__start_graphics_port,
+            "end_graphics_port": self.__end_graphics_port,
+        }
+
     def __setstate__(self, new_state: dict):
-        self.start_graphics_port = new_state["start_graphics_port"]
-        self.end_graphics_port = new_state["end_graphics_port"]
+        self.__start_graphics_port = new_state["start_graphics_port"]
+        self.__end_graphics_port = new_state["end_graphics_port"]
+        self.__start = new_state["start"]
+        self.__end = new_state["end"]
 
     def __reduce__(self):
-        return (
-            GraphicsConnection,
-            (),
-            {
-                "start_graphics_port": self.__start_graphics_port,
-                "end_graphics_port": self.__end_graphics_port,
-            },
-        )
+        return (GraphicsConnection, (self._painter_factory,), self.__getstate__())
 
     def paint(
         self,
