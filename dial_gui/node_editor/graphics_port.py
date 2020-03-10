@@ -161,7 +161,7 @@ class GraphicsPort(QGraphicsItem):
         widget: "QWidget" = None,
     ):
         """Paints the port."""
-        self.__graphics_port_painter.paint(painter, option, widget)
+        self._graphics_port_painter.paint(painter, option, widget)
 
 
 GraphicsPortFactory = providers.Factory(

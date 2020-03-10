@@ -10,7 +10,7 @@ from PySide2.QtWidgets import QGraphicsScene
 
 from dial_core.utils.log import DEBUG, log_on_end
 
-from .graphics_node import GraphicsNode
+from .graphics_node import GraphicsNodeFactory, GraphicsNode
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QObject
@@ -125,7 +125,7 @@ class GraphicsScene(QGraphicsScene):
         )
 
     def __create_new_graphics_node_from(self, node: "Node") -> "GraphicsNode":
-        return GraphicsNode(node)
+        return GraphicsNodeFactory(node)
 
     def __calculate_grid_boundaries(self, rect: "QRectF") -> "QRect":
         """Calculates the grid boundaries from the rect."""
