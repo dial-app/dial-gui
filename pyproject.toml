@@ -38,7 +38,7 @@ mkdocs = "^1.1"
 [tool.taskipy.tasks]
 dial = "python -m dial_gui -d"
 lint = "pre-commit run --all"
-tests = "pytest --cov"
+tests = "pytest --cov=dial_gui/ --cov-report term-missing:skip-covered"
 doc-coverage = "docstr-coverage -fi dial_core"
 
 [build-system]

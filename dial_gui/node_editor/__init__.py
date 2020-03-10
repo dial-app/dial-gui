@@ -3,6 +3,10 @@
 
 from .containers import DefaultGraphicsSceneFactory
 from .graphics_connection import GraphicsConnection, GraphicsConnectionFactory
+from .graphics_connection_painter import (
+    GraphicsConnectionPainter,
+    GraphicsConnectionPainterFactory,
+)
 from .graphics_node import GraphicsNode
 from .graphics_port import GraphicsPort
 from .graphics_scene import GraphicsScene
@@ -14,6 +18,8 @@ __all__ = [
     "GraphicsScene",
     "GraphicsConnection",
     "GraphicsConnectionFactory",
+    "GraphicsConnectionPainter",
+    "GraphicsConnectionPainterFactory",
     "NodeEditorWindow",
     "NodeEditorView",
     "GraphicsPort",
