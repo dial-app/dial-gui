@@ -4,10 +4,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 
 import dependency_injector.providers as providers
+from dial_core.node_editor import Port
 from PySide2.QtCore import QRectF
 from PySide2.QtWidgets import QGraphicsItem
-
-from dial_core.node_editor import Port
 
 from .graphics_port_painter import GraphicsPortPainterFactory
 
@@ -42,7 +41,7 @@ class GraphicsPort(QGraphicsItem):
     def __init__(
         self,
         port: "Port",
-        graphics_port_painter_factory,
+        painter_factory: "providers.Factory",
         parent: "GraphicsNode" = None,
     ):
         super().__init__(parent)
@@ -50,14 +49,14 @@ class GraphicsPort(QGraphicsItem):
         self.radius = 8
         self.margin = 12
 
-        self.__graphics_node = parent
         self._port = port
         self._port.graphics_port = self  # type: ignore
 
+        self.__graphics_node = parent
         self.__graphics_connections: Set["GraphicsConnection"] = set()
 
-        self.__graphics_port_painter_factory = graphics_port_painter_factory
-        self.__graphics_port_painter = graphics_port_painter_factory(graphics_port=self)
+        self._painter_factory = painter_factory
+        self._graphics_port_painter = painter_factory(graphics_port=self)
 
     @property
     def name(self):  # TODO: Eventually remove
@@ -75,7 +74,7 @@ class GraphicsPort(QGraphicsItem):
 
     @property
     def painter(self):
-        return self.__graphics_port_painter
+        return self._graphics_port_painter
 
     @property
     def graphics_connections(self) -> Set["GraphicsConnection"]:
@@ -148,7 +147,7 @@ class GraphicsPort(QGraphicsItem):
     def __reduce__(self):
         return (
             GraphicsPort,
-            (self._port, self.__graphics_port_painter_factory, self.__graphics_node),
+            (self._port, self._painter_factory, self.__graphics_node),
             self.__getstate__(),
         )
 
@@ -166,5 +165,5 @@ class GraphicsPort(QGraphicsItem):
 
 
 GraphicsPortFactory = providers.Factory(
-    GraphicsPort, graphics_port_painter_factory=GraphicsPortPainterFactory.delegate()
+    GraphicsPort, painter_factory=GraphicsPortPainterFactory.delegate()
 )
