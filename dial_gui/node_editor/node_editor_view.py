@@ -121,7 +121,7 @@ class NodeEditorView(QGraphicsView):
 
         self.new_connection = self.__create_new_connection()
         self.new_connection.start_graphics_port = item
-        self.new_connection.end = self.new_connection.start_graphics_port.pos()
+        self.new_connection.end = self.mapToScene(event.pos())
 
         GraphicsPort.drawing_state = GraphicsPort.DrawingState.Dragging
         GraphicsPort.drawing_type = item.port_type
@@ -147,8 +147,8 @@ class NodeEditorView(QGraphicsView):
         item = self.__item_clicked_on(event)
 
         # The conection must end on a COMPATIBLE GraphicsPort item
-        if isinstance(item, GraphicsPort) and item.port.is_compatible_with(
-            self.new_connection.start_graphics_port.port  # type: ignore
+        if isinstance(item, GraphicsPort) and item.is_compatible_with(
+            self.new_connection.start_graphics_port  # type: ignore
         ):
             self.new_connection.end_graphics_port = item
         else:
@@ -194,6 +194,8 @@ class NodeEditorView(QGraphicsView):
 
     def __remove_connection(self, connection: "GraphicsConnection"):
         """Removes the GraphicsConnection item from the scene."""
+        connection.start_graphics_port = None
+        connection.end_graphics_port = None
         self.scene().removeItem(connection)
 
     def __item_clicked_on(self, event: "QMouseEvent") -> Union["GraphicsPort", Any]:

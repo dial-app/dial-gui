@@ -4,9 +4,10 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, Optional, Set
 
 import dependency_injector.providers as providers
-from dial_core.node_editor import Port
 from PySide2.QtCore import QRectF
 from PySide2.QtWidgets import QGraphicsItem
+
+from dial_core.node_editor import Port
 
 from .graphics_port_painter import GraphicsPortPainterFactory
 
@@ -67,19 +68,22 @@ class GraphicsPort(QGraphicsItem):
     def port_type(self):
         return self._port.port_type
 
+    def is_compatible_with(self, graphics_port: "GraphicsPort"):
+        return self.port_type == graphics_port.port_type
+
     @property
     def graphics_node(self) -> Optional["GraphicsNode"]:
         """Returns the parent GraphicsNode where this port is located."""
         return self.__graphics_node
 
     @property
-    def painter(self):
-        return self._graphics_port_painter
-
-    @property
     def graphics_connections(self) -> Set["GraphicsConnection"]:
         """Returns a list of the GraphicsConnections item connected to this port."""
         return self.__graphics_connections
+
+    @property
+    def painter(self):
+        return self._graphics_port_painter
 
     def pos(self) -> "QPointF":
         """Returns the position of the GraphicsPort (In terms of scene coordinates)."""
@@ -95,19 +99,10 @@ class GraphicsPort(QGraphicsItem):
         Args:
             connection_item: A GraphicsConnection object.
         """
-
-        # If both ports are connected, connect the inner port objects
-        if connection_item.start_graphics_port and connection_item.end_graphics_port:
-            start_port = connection_item.start_graphics_port._port
-            end_port = connection_item.end_graphics_port._port
-
-            if self._port is start_port:
-                self._port.connect_to(end_port)
-            elif self._port is end_port:
-                self._port.connect_to(start_port)
-            else:
-                #  TODO: Raise exception
-                print("This GraphicsConnection object doesn't belong to this port!")
+        if connection_item.is_connected():
+            connection_item.start_graphics_port._port.connect_to(  # type: ignore
+                connection_item.end_graphics_port._port  # type:ignore
+            )
 
         self.__graphics_connections.add(connection_item)
 
@@ -120,6 +115,11 @@ class GraphicsPort(QGraphicsItem):
         Args:
             connection_item: A GraphicsConnection object.
         """
+        if connection_item.is_connected():
+            connection_item.start_graphics_port._port.disconnect_from(  # type: ignore
+                connection_item.end_graphics_port._port  # type: ignore
+            )
+
         self.__graphics_connections.discard(connection_item)
 
     def boundingRect(self) -> "QRectF":

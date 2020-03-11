@@ -40,8 +40,8 @@ class GraphicsNodePainter:
         self.repositionWidget()
 
         # position GraphicsPort objects
-        def position_graphics_ports(x_offset, graphics_ports_list):
-            for i, graphics_port in enumerate(graphics_ports_list):
+        def position_graphics_ports(x_offset, graphics_ports_dict):
+            for i, graphics_port in enumerate(graphics_ports_dict.values()):
                 graphics_port.setPos(
                     x_offset, self.title_height() + (graphics_port.radius * 4) * (i + 1)
                 )

@@ -65,7 +65,11 @@ class GraphicsConnection(QGraphicsPathItem):
     @property
     def start(self) -> "QPointF":
         """Returns the start position coordinate of this connection."""
-        return self.__start
+        return (
+            self.__start
+            if not self.__start_graphics_port
+            else self.__start_graphics_port.pos()
+        )
 
     @start.setter
     def start(self, position: "QPointF"):
@@ -86,7 +90,11 @@ class GraphicsConnection(QGraphicsPathItem):
     @property
     def end(self) -> "QPointF":
         """Returns the end position of the connection."""
-        return self.__end
+        return (
+            self.__end
+            if not self.__end_graphics_port
+            else self.__end_graphics_port.pos()
+        )
 
     @end.setter
     def end(self, position: "QPointF"):
@@ -110,23 +118,27 @@ class GraphicsConnection(QGraphicsPathItem):
         return self.__start_graphics_port
 
     @start_graphics_port.setter
-    def start_graphics_port(self, port: Optional["GraphicsPort"]):
+    def start_graphics_port(self, graphics_port: Optional["GraphicsPort"]):
         """Sets the start of this connection to the `port` position.
 
         The connection adopts the color of the start port.
         """
-        if not port:
+        if not graphics_port:
+            if self.__start_graphics_port:
+                self.__start_graphics_port.remove_connection(self)
+
             self.start = self.__start
+            self.__start_graphics_port = None
         else:
             # Updates the start position
-            self.__start = port.pos()
+            self.__start = graphics_port.pos()
 
             # Assigns a new start port
-            self.__start_graphics_port = port
+            self.__start_graphics_port = graphics_port
             self.__start_graphics_port.add_connection(self)
 
             # The connection adopts the color of the port
-            self.painter.color = port.painter.color
+            self.painter.color = graphics_port.painter.color
 
         self._update_path()
 
@@ -137,19 +149,27 @@ class GraphicsConnection(QGraphicsPathItem):
 
     @end_graphics_port.setter
     # @log_on_end(INFO, "{self} connected to End Port {port}")
-    def end_graphics_port(self, port: "GraphicsPort"):
+    def end_graphics_port(self, graphics_port: "GraphicsPort"):
         """Sets the end of this connection to the `port` position."""
-        if not port:
+        if not graphics_port:
+            if self.__end_graphics_port:
+                self.__end_graphics_port.remove_connection(self)
+
             self.end = self.__end
+            self.__end_graphics_port = None
         else:
             # Updates the end position
-            self.__end = port.pos()
+            self.__end = graphics_port.pos()
 
             # Assigns a new end port
-            self.__end_graphics_port = port
+            self.__end_graphics_port = graphics_port
             self.__end_graphics_port.add_connection(self)
 
         self._update_path()
+
+    def is_connected(self) -> bool:
+        """Returns if the start and end ports are connected."""
+        return bool(self.__start_graphics_port and self.__end_graphics_port)
 
     def _update_path(self):
         """Creates a new bezier path from `self.start` to `self.end`."""
@@ -172,9 +192,7 @@ class GraphicsConnection(QGraphicsPathItem):
         In this case, we change the color of the connection when it's selected.
         """
         if change == self.ItemSelectedChange:
-            self.painter.color = (
-                self.painter.color.lighter(150) if value else self.painter.color
-            )
+            self.painter.highlight_color(value)
             return value
 
         return super().itemChange(change, value)

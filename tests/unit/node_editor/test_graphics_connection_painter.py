@@ -6,22 +6,22 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QColor, QPen
 
 
-def test_color(graphics_connection):
-    assert graphics_connection.painter.color.name() == "#000000"
+def test_color(connection_item):
+    assert connection_item.painter.color.name() == "#000000"
 
-    graphics_connection.painter.color = QColor("#444444")
+    connection_item.painter.color = QColor("#444444")
 
-    assert graphics_connection.painter.color.name() == "#444444"
+    assert connection_item.painter.color.name() == "#444444"
 
 
 @patch("PySide2.QtGui.QPainter")
-def test_paint(mock_qpainter, graphics_connection):
-    graphics_connection.painter.color = QColor("#444444")
+def test_paint(mock_qpainter, connection_item):
+    connection_item.painter.color = QColor("#444444")
 
-    graphics_connection.painter.paint(mock_qpainter, None, None)
+    connection_item.painter.paint(mock_qpainter, None, None)
 
     mock_qpainter.setBrush.assert_called_once_with(Qt.NoBrush)
 
-    pen = QPen(graphics_connection.painter.color)
-    pen.setWidth(graphics_connection.width)
+    pen = QPen(connection_item.painter.color)
+    pen.setWidth(connection_item.width)
     mock_qpainter.setPen.assert_called_once_with(pen)

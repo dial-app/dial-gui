@@ -34,12 +34,19 @@ class GraphicsConnectionPainter:
         self.__color = color
         self.__default_pen.setColor(self.__color)
 
+    def highlight_color(self, toggle: bool):
+        """Paints the connection with a highlighted color if toggled."""
+        self.__default_pen.setColor(
+            self.__color.lighter(150) if toggle else self.__color
+        )
+
     def paint(
         self,
         painter: "QPainter",
         option: "QStyleOptionGraphicsItem",
         widget: "QWidget" = None,
     ):
+        """Paints the graphics connection item."""
         painter.setPen(self.__default_pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(self.__graphics_connection.path())

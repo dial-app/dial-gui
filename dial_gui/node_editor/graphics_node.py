@@ -1,6 +1,6 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any, Dict
 
 import dependency_injector.providers as providers
 from PySide2.QtCore import Qt
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from PySide2.QtCore import QRectF
     from PySide2.QtGui import QPainter, QMouseEvent
 
-    from dial_core.node_editor import Node
+    from dial_core.node_editor import Node, Port  # noqa: F401
     from PySide2.QtWidgets import QStyleOptionGraphicsItem, QGraphicsSceneMouseEvent
     from dial_gui.node_editor import GraphicsPort  # noqa: F401
 
@@ -46,10 +46,12 @@ class GraphicsNode(QGraphicsObject):
         self._node.graphics_node = self  # type: ignore
 
         # GraphicsPorts
-        self._input_graphics_ports: List["GraphicsPort"] = []
-        self._output_graphics_ports: List["GraphicsPort"] = []
-        self.__create_graphic_ports()
-
+        self._input_graphics_ports = self.__create_graphic_ports(
+            self._node.inputs, InputGraphicsPortPainterFactory
+        )
+        self._output_graphics_ports = self.__create_graphic_ports(
+            self._node.outputs, OutputGraphicsPortPainterFactory
+        )
         # Proxy
         self._node_widget_proxy = QGraphicsProxyWidget(parent=self)
         self._node_widget_proxy.setWidget(
@@ -73,15 +75,15 @@ class GraphicsNode(QGraphicsObject):
     def title(self):
         return self._node.title
 
-    # TODO: Only used by resizable. Remove eventually.
-    @property
-    def proxy_widget(self) -> "QGraphicsProxyWidget":
-        """Returns the widget used for containing the inner widget."""
-        return self._node_widget_proxy
-
     @property
     def painter(self):
         return self._graphics_node_painter
+
+    @property
+    def proxy_widget(self) -> "QGraphicsProxyWidget":
+        # TODO: Only used by resizable. Remove eventually.
+        """Returns the widget used for containing the inner widget."""
+        return self._node_widget_proxy
 
     def boundingRect(self) -> "QRectF":
         """Returns a rect enclosing the node."""
@@ -154,22 +156,16 @@ class GraphicsNode(QGraphicsObject):
         self._graphics_node_painter.repositionWidget()
         self._graphics_node_painter.recalculateGeometry()
 
-    def __create_graphic_ports(self):
+    def __create_graphic_ports(
+        self, ports_dict: Dict[str, "Port"], painter_factory: "providers.Factory"
+    ) -> Dict[str, "GraphicsPort"]:
         """Creates new GraphicsPort items from regular Port objects."""
-
-        def create_graphics_ports_from(ports_list, painter_factory):
-            return [
-                GraphicsPortFactory(port, painter_factory=painter_factory, parent=self)
-                for port in ports_list
-            ]
-
-        self._input_graphics_ports = create_graphics_ports_from(
-            self._node.inputs.values(), InputGraphicsPortPainterFactory
-        )
-
-        self._output_graphics_ports = create_graphics_ports_from(
-            self._node.outputs.values(), OutputGraphicsPortPainterFactory
-        )
+        return {
+            name: GraphicsPortFactory(
+                port=port, painter_factory=painter_factory, parent=self
+            )
+            for (name, port) in ports_dict.items()
+        }
 
     def __setstate__(self, new_state: dict):
         self.prepareGeometryChange()

@@ -20,7 +20,7 @@ def graphics_port_b():
 
 
 @pytest.fixture
-def graphics_connection():
+def connection_item():
     return GraphicsConnectionFactory()
 
 
