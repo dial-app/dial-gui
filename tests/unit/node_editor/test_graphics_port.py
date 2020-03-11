@@ -1,7 +1,5 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-# import pickle
-
 from PySide2.QtCore import QPointF
 
 

@@ -165,7 +165,7 @@ class ResizableItemEventFilter(QObject):
             self.__initial_node_pos.x() + new_x, self.__initial_node_pos.y() + new_y
         )
 
-        node.recalculateGeometry()
+        # node.recalculateGeometry()
 
     def __stop_resizing_node(self, node: "GraphicsNode", event: "QEvent"):
         """Stops resizing the node."""
