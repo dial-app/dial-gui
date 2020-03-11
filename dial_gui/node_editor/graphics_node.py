@@ -73,6 +73,7 @@ class GraphicsNode(QGraphicsObject):
     def title(self):
         return self._node.title
 
+    # TODO: Only used by resizable. Remove eventually.
     @property
     def proxy_widget(self) -> "QGraphicsProxyWidget":
         """Returns the widget used for containing the inner widget."""
@@ -81,32 +82,6 @@ class GraphicsNode(QGraphicsObject):
     @property
     def painter(self):
         return self._graphics_node_painter
-
-    def __create_graphic_ports(self):
-        """Creates new GraphicsPort items from regular Port objects."""
-
-        def create_graphics_ports_from(ports_list, painter_factory):
-            return [
-                GraphicsPortFactory(port, painter_factory=painter_factory, parent=self)
-                for port in ports_list
-            ]
-
-        self._input_graphics_ports = create_graphics_ports_from(
-            self._node.inputs.values(), InputGraphicsPortPainterFactory
-        )
-
-        self._output_graphics_ports = create_graphics_ports_from(
-            self._node.outputs.values(), OutputGraphicsPortPainterFactory
-        )
-
-    def setInnerWidget(self, widget: "QWidget"):
-        """Sets a new widget inside the node."""
-        self.prepareGeometryChange()
-
-        self._node_widget_proxy.setWidget(widget)
-
-        self._graphics_node_painter.repositionWidget()
-        self._graphics_node_painter.recalculateGeometry()
 
     def boundingRect(self) -> "QRectF":
         """Returns a rect enclosing the node."""
@@ -137,14 +112,14 @@ class GraphicsNode(QGraphicsObject):
         in the node when pressed.
         """
 
-        node_inner_widget = self.proxy_widget.widget()
+        node_inner_widget = self._node_widget_proxy.widget()
         previous_node_size = node_inner_widget.size()
 
         show_here_button = QPushButton("Show here")
         show_here_button.setMinimumSize(200, 100)
 
         # Replace the node widget with the button
-        self.setInnerWidget(show_here_button)
+        self.__set_inner_wdiget(show_here_button)
 
         # Create a new dialog for displaying the node widget
         dialog = QDialog()
@@ -161,7 +136,7 @@ class GraphicsNode(QGraphicsObject):
             node_inner_widget.setParent(None)
 
             node_inner_widget.resize(previous_node_size)
-            self.setInnerWidget(node_inner_widget)
+            self.__set_inner_widget(node_inner_widget)
 
             dialog.close()
 
@@ -169,6 +144,32 @@ class GraphicsNode(QGraphicsObject):
         # when the "show here" button is pressed
         dialog.finished.connect(place_widget_back_in_node)
         show_here_button.clicked.connect(place_widget_back_in_node)
+
+    def __set_inner_wdiget(self, widget: "QWidget"):
+        """Sets a new widget inside the node."""
+        self.prepareGeometryChange()
+
+        self._node_widget_proxy.setWidget(widget)
+
+        self._graphics_node_painter.repositionWidget()
+        self._graphics_node_painter.recalculateGeometry()
+
+    def __create_graphic_ports(self):
+        """Creates new GraphicsPort items from regular Port objects."""
+
+        def create_graphics_ports_from(ports_list, painter_factory):
+            return [
+                GraphicsPortFactory(port, painter_factory=painter_factory, parent=self)
+                for port in ports_list
+            ]
+
+        self._input_graphics_ports = create_graphics_ports_from(
+            self._node.inputs.values(), InputGraphicsPortPainterFactory
+        )
+
+        self._output_graphics_ports = create_graphics_ports_from(
+            self._node.outputs.values(), OutputGraphicsPortPainterFactory
+        )
 
     def __setstate__(self, new_state: dict):
         self.prepareGeometryChange()

@@ -2,8 +2,8 @@
 
 import pytest
 
-from dial_core.node_editor import Port
-from dial_gui.node_editor import GraphicsConnectionFactory
+from dial_core.node_editor import Node, Port
+from dial_gui.node_editor import GraphicsConnectionFactory, GraphicsNodeFactory
 from dial_gui.node_editor.graphics_node import GraphicsPortFactory
 
 collect_ignore = ["setup.py"]
@@ -22,3 +22,35 @@ def graphics_port_b():
 @pytest.fixture
 def graphics_connection():
     return GraphicsConnectionFactory()
+
+
+@pytest.fixture
+def node_a():
+    node = Node(title="a")
+    node.add_input_port(name="in_int", port_type=int)
+    node.add_input_port(name="in_str", port_type=str)
+    node.add_output_port(name="out_int", port_type=int)
+    node.add_output_port(name="out_str", port_type=int)
+
+    return node
+
+
+@pytest.fixture
+def node_b():
+    node = Node(title="b")
+    node.add_input_port(name="in_int", port_type=int)
+    node.add_input_port(name="in_str", port_type=str)
+    node.add_output_port(name="out_int", port_type=int)
+    node.add_output_port(name="out_str", port_type=int)
+
+    return node
+
+
+@pytest.fixture
+def graphics_node_a(node_a):
+    return GraphicsNodeFactory(node=node_a)
+
+
+@pytest.fixture
+def graphics_node_b(node_b):
+    return GraphicsNodeFactory(node=node_b)

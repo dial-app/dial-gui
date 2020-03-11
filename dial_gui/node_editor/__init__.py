@@ -7,7 +7,7 @@ from .graphics_connection_painter import (
     GraphicsConnectionPainter,
     GraphicsConnectionPainterFactory,
 )
-from .graphics_node import GraphicsNode
+from .graphics_node import GraphicsNode, GraphicsNodeFactory
 from .graphics_port import GraphicsPort
 from .graphics_scene import GraphicsScene
 from .node_editor_view import NodeEditorView

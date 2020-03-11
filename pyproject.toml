@@ -15,7 +15,7 @@ homepage = "https://github.com/dial-app/dial-gui"
 python = ">=3.6, <3.8"
 toml = "^0.10.0"
 
-dial-core = "^0.7a0"
+dial-core = "^0.8a0"
 tensorflow = "2.0.0b1"
 PySide2 = "^5.12.6"
 qimage2ndarray = "^1.8.3"
