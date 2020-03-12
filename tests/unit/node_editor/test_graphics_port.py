@@ -38,5 +38,21 @@ def test_bounding_rect(qtbot, graphics_port_a):
     )
 
 
+def test_several_conenctions(qtbot, graphics_port_a, graphics_port_b, connection_item):
+    connection_item.start_graphics_port = graphics_port_a
+    connection_item.end_graphics_port = graphics_port_b
+
+    # connection_item_2 = deepcopy(connection_item)
+
+    assert len(graphics_port_a.graphics_connections) == 1
+    assert len(graphics_port_b.graphics_connections) == 1
+
+
+#     graphics_port_a.add_connection(connection_item_2)
+
+#     assert len(graphics_port_a.graphics_connections) == 1
+#     assert len(graphics_port_b.graphics_connections) == 1
+
+
 def test_pickable(qtbot, graphics_port_a, graphics_port_b):
     pass

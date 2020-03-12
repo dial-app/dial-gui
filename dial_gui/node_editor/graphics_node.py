@@ -46,10 +46,10 @@ class GraphicsNode(QGraphicsObject):
         self._node.graphics_node = self  # type: ignore
 
         # GraphicsPorts
-        self._input_graphics_ports = self.__create_graphic_ports(
+        self._input_graphics_ports = self.__create_graphics_ports(
             self._node.inputs, InputGraphicsPortPainterFactory
         )
-        self._output_graphics_ports = self.__create_graphic_ports(
+        self._output_graphics_ports = self.__create_graphics_ports(
             self._node.outputs, OutputGraphicsPortPainterFactory
         )
         # Proxy
@@ -156,16 +156,26 @@ class GraphicsNode(QGraphicsObject):
         self._graphics_node_painter.repositionWidget()
         self._graphics_node_painter.recalculateGeometry()
 
-    def __create_graphic_ports(
+    def __create_graphics_ports(
         self, ports_dict: Dict[str, "Port"], painter_factory: "providers.Factory"
     ) -> Dict[str, "GraphicsPort"]:
         """Creates new GraphicsPort items from regular Port objects."""
-        return {
-            name: GraphicsPortFactory(
-                port=port, painter_factory=painter_factory, parent=self
-            )
-            for (name, port) in ports_dict.items()
-        }
+        graphics_ports_dict = {}
+
+        for name in ports_dict.keys():
+            port = ports_dict[name]
+
+            try:
+                port.graphics_port.painter_factory = painter_factory
+                port.graphics_port.set_parent_graphics_node(self)
+                graphics_ports_dict[name] = port.graphics_port
+
+            except AttributeError:
+                graphics_ports_dict[name] = GraphicsPortFactory(
+                    port=port, painter_factory=painter_factory, parent=self
+                )
+
+        return graphics_ports_dict
 
     def __setstate__(self, new_state: dict):
         self.prepareGeometryChange()
