@@ -15,6 +15,7 @@ from .node_editor_window import NodeEditorWindow
 
 __all__ = [
     "GraphicsNode",
+    "GraphicsNodeFactory",
     "GraphicsScene",
     "GraphicsConnection",
     "GraphicsConnectionFactory",

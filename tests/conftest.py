@@ -30,7 +30,7 @@ def node_a():
     node.add_input_port(name="in_int", port_type=int)
     node.add_input_port(name="in_str", port_type=str)
     node.add_output_port(name="out_int", port_type=int)
-    node.add_output_port(name="out_str", port_type=int)
+    node.add_output_port(name="out_str", port_type=str)
 
     return node
 
@@ -41,7 +41,7 @@ def node_b():
     node.add_input_port(name="in_int", port_type=int)
     node.add_input_port(name="in_str", port_type=str)
     node.add_output_port(name="out_int", port_type=int)
-    node.add_output_port(name="out_str", port_type=int)
+    node.add_output_port(name="out_str", port_type=str)
 
     return node
 

@@ -46,9 +46,9 @@ class GraphicsNodePainter:
                     x_offset, self.title_height() + (graphics_port.radius * 4) * (i + 1)
                 )
 
-        position_graphics_ports(0, self.__graphics_node._input_graphics_ports)
+        position_graphics_ports(0, self.__graphics_node.inputs)
         position_graphics_ports(
-            self.boundingRect().width(), self.__graphics_node._output_graphics_ports
+            self.boundingRect().width(), self.__graphics_node.outputs
         )
 
     @property
@@ -80,7 +80,7 @@ class GraphicsNodePainter:
         )
 
     def recalculateGeometry(self):
-        for graphics_port in self.__graphics_node._output_graphics_ports:
+        for graphics_port in self.__graphics_node.outputs.values():
             graphics_port.setX(self.boundingRect().width())
 
     def itemChange(self, change: "QGraphicsItem.GraphicsItemChange", value: Any) -> Any:

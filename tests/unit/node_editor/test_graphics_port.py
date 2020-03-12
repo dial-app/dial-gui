@@ -1,5 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import pickle
+
 from PySide2.QtCore import QPointF
 
 
@@ -38,21 +40,20 @@ def test_bounding_rect(qtbot, graphics_port_a):
     )
 
 
-def test_several_conenctions(qtbot, graphics_port_a, graphics_port_b, connection_item):
+def test_pickable(qtbot, graphics_port_a, graphics_port_b, connection_item):
+    graphics_port_a.setPos(200, 100)
+    graphics_port_b.setPos(50, 80)
+
     connection_item.start_graphics_port = graphics_port_a
     connection_item.end_graphics_port = graphics_port_b
 
-    # connection_item_2 = deepcopy(connection_item)
+    assert connection_item in graphics_port_a.graphics_connections
+    assert connection_item in graphics_port_b.graphics_connections
 
-    assert len(graphics_port_a.graphics_connections) == 1
-    assert len(graphics_port_b.graphics_connections) == 1
+    obj = pickle.dumps(graphics_port_a)
+    loaded_graphics_port_a = pickle.loads(obj)
 
+    # obj = pickle.dumps(graphics_port_b)
+    # loaded_graphics_port_b = pickle.loads(obj)
 
-#     graphics_port_a.add_connection(connection_item_2)
-
-#     assert len(graphics_port_a.graphics_connections) == 1
-#     assert len(graphics_port_b.graphics_connections) == 1
-
-
-def test_pickable(qtbot, graphics_port_a, graphics_port_b):
-    pass
+    assert loaded_graphics_port_a.pos() == graphics_port_a.pos()

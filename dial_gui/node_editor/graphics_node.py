@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Any, Dict
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, Signal
 from PySide2.QtWidgets import (
     QDialog,
     QGraphicsItem,
@@ -30,13 +30,23 @@ if TYPE_CHECKING:
     from dial_core.node_editor import Node, Port  # noqa: F401
     from PySide2.QtWidgets import QStyleOptionGraphicsItem, QGraphicsSceneMouseEvent
     from dial_gui.node_editor import GraphicsPort  # noqa: F401
+    from .graphics_scene import GraphicsScene
 
 
 class GraphicsNode(QGraphicsObject):
+    class ProxyWidget(QGraphicsProxyWidget):
+        widget_resized = Signal("QSizeF")
+
+        def resize(self, x_or_point, y=None):
+            super().resize(x_or_point, y)
+
+            self.widget_resized.emit(self.size())
+
     def __init__(
         self,
         node: "Node",
         painter_factory: "providers.Factory",
+        graphics_scene: "GraphicsScene" = None,
         parent: "QGraphicsItem" = None,
     ):
         super().__init__(parent)
@@ -44,6 +54,7 @@ class GraphicsNode(QGraphicsObject):
         # Components
         self._node = node
         self._node.graphics_node = self  # type: ignore
+        self.__graphics_scene = graphics_scene
 
         # GraphicsPorts
         self._input_graphics_ports = self.__create_graphics_ports(
@@ -53,7 +64,8 @@ class GraphicsNode(QGraphicsObject):
             self._node.outputs, OutputGraphicsPortPainterFactory
         )
         # Proxy
-        self._node_widget_proxy = QGraphicsProxyWidget(parent=self)
+        self._node_widget_proxy = self.ProxyWidget(parent=self)
+
         self._node_widget_proxy.setWidget(
             self._node.inner_widget if self._node.inner_widget else QWidget()
         )
@@ -69,7 +81,13 @@ class GraphicsNode(QGraphicsObject):
 
         # Filters
         self.__resizable_item_event_filter = ResizableItemEventFilter(parent=self)
-        self.installEventFilter(self.__resizable_item_event_filter)
+        # TODO: Fix events not looked
+        self._node_widget_proxy.installEventFilter(self.__resizable_item_event_filter)
+
+        # Connections
+        self._node_widget_proxy.widget_resized.connect(
+            lambda _: self._graphics_node_painter.recalculateGeometry()
+        )
 
     @property
     def title(self):
@@ -80,10 +98,16 @@ class GraphicsNode(QGraphicsObject):
         return self._graphics_node_painter
 
     @property
-    def proxy_widget(self) -> "QGraphicsProxyWidget":
-        # TODO: Only used by resizable. Remove eventually.
-        """Returns the widget used for containing the inner widget."""
-        return self._node_widget_proxy
+    def inputs(self):
+        return self._input_graphics_ports
+
+    @property
+    def outputs(self):
+        return self._output_graphics_ports
+
+    @property
+    def graphics_scene(self):
+        return self.__graphics_scene
 
     def boundingRect(self) -> "QRectF":
         """Returns a rect enclosing the node."""
@@ -177,29 +201,17 @@ class GraphicsNode(QGraphicsObject):
 
         return graphics_ports_dict
 
+    def __getstate__(self):
+        return {"pos": self.pos(), "proxy_size": self._node_widget_proxy.size()}
+
     def __setstate__(self, new_state: dict):
         self.prepareGeometryChange()
-
         self.setPos(new_state["pos"])
 
-        self._node_widget_proxy.resize(500, 200)
-
-        print("Current inputs", self._input_graphics_ports)
-        print("Current outputs", self._output_graphics_ports)
-        print("Old inputs", new_state["inputs"])
-        print("Old outputs", new_state["outputs"])
+        self._node_widget_proxy.resize(new_state["proxy_size"])
 
     def __reduce__(self):
-        return (
-            GraphicsNode,
-            (self._node, None),
-            {
-                "pos": self.pos(),
-                "proxy_geometry": self._node_widget_proxy.geometry(),
-                "inputs": self._input_graphics_ports,
-                "outputs": self._output_graphics_ports,
-            },
-        )
+        return (GraphicsNode, (self._node, self._painter_factory), self.__getstate__())
 
     def paint(
         self, painter: "QPainter", option: "QStyleOptionGraphicsItem", widget: "QWidget"

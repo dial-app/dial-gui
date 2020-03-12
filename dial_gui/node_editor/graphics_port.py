@@ -160,7 +160,6 @@ class GraphicsPort(QGraphicsItem):
     def __create_graphics_connections(self):
         for connected_port in self._port.connections:
             if not hasattr(connected_port, "graphics_port"):
-                print("Inside", connected_port.name, id(connected_port))
                 setattr(
                     connected_port, "graphics_port", GraphicsPortFactory(connected_port)
                 )
@@ -186,6 +185,7 @@ class GraphicsPort(QGraphicsItem):
         return {"connections": self.__graphics_connections, "pos": self.pos()}
 
     def __setstate__(self, new_state: Dict[str, Any]):
+        self.__graphics_connections = new_state["connections"]
         self.setPos(new_state["pos"])
 
     def __reduce__(self):

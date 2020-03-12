@@ -234,6 +234,15 @@ class GraphicsConnection(QGraphicsPathItem):
 
         self._graphics_connection_painter.paint(painter, option, widget)
 
+    def __eq__(self, other) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.start == other.start
+            and self.end == other.end
+            and self.start_graphics_port == other.start_graphics_port
+            and self.end_graphics_port == other.end_graphics_port
+        )
+
     def __str__(self) -> str:
         return (
             f"{type(self).__name__} {self.start} ({self.start_graphics_port})"

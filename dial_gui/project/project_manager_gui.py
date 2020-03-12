@@ -12,16 +12,11 @@ LOGGER = log.get_logger(__name__)
 
 
 class ProjectManagerGUI(QObject, ProjectManager):
-    new_project_added = Signal(ProjectGUI)
+    active_project_changed = Signal(ProjectGUI)
 
     def __init__(self, default_project: "ProjectGUI", parent=None):
         QObject.__init__(self, parent)
         ProjectManager.__init__(self, default_project)
-
-    def add_project(self, project: "ProjectGUI"):
-        super().add_project(project)
-
-        self.new_project_added.emit(project)
 
     @Slot()
     def open_project(self):
@@ -37,6 +32,14 @@ class ProjectManagerGUI(QObject, ProjectManager):
             super().open_project(file_path)
         else:
             LOGGER.info("Invalid file path. Loading cancelled.")
+
+    @Slot()
+    def set_active_project(self, index: int) -> "ProjectGUI":
+        project = super().set_active_project(index)
+
+        self.active_project_changed.emit(project)
+
+        return project
 
     @Slot()
     def save_project(self):

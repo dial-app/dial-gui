@@ -2,9 +2,9 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, Signal
 from PySide2.QtGui import QPainter
-from PySide2.QtWidgets import QGraphicsView
+from PySide2.QtWidgets import QGraphicsItem, QGraphicsView
 
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
@@ -18,22 +18,20 @@ if TYPE_CHECKING:
 
 
 class NodeEditorView(QGraphicsView):
+    connection_created = Signal(QGraphicsItem)
+    connection_removed = Signal(QGraphicsItem)
+
     def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
         super().__init__(parent)
 
-        self.new_connection: Optional["GraphicsConnection"] = None
-
         self.__tabs_widget = tabs_widget
+
+        self.__new_connection: Optional["GraphicsConnection"] = None
 
         self.__panning_event_filter = PanningEventFilter(parent=self)
         self.__zoom_event_filter = ZoomEventFilter(parent=self)
-
         self.installEventFilter(self.__zoom_event_filter)
 
-        self.__setup_ui()
-
-    def __setup_ui(self):
-        """Setups the UI configuration."""
         self.setRenderHints(
             QPainter.Antialiasing
             | QPainter.HighQualityAntialiasing
@@ -44,8 +42,8 @@ class NodeEditorView(QGraphicsView):
         self.setDragMode(QGraphicsView.RubberBandDrag)
 
         # View actions
-        self.setPanning(True)
-        self.setZooming(True)
+        self.set_panning(True)
+        self.set_zooming(True)
 
         # Hide scrollbars
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -54,11 +52,11 @@ class NodeEditorView(QGraphicsView):
         # Set anchor under mouse (for zooming)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
-    def setPanning(self, toggle: bool):
+    def set_panning(self, toggle: bool):
         """Toggles if the view can be panned or not with the mouse."""
         self.__toggle_event_filter(toggle, self.__panning_event_filter)
 
-    def setZooming(self, toggle: bool):
+    def set_zooming(self, toggle: bool):
         """Toggles if the view can be zoomed or not with the mouse wheel."""
         self.__toggle_event_filter(toggle, self.__zoom_event_filter)
 
@@ -119,13 +117,9 @@ class NodeEditorView(QGraphicsView):
 
         log.get_logger(__name__).debug("Start dragging")
 
-        self.new_connection = self.__create_new_connection()
-        self.new_connection.start_graphics_port = item
-        self.new_connection.end = self.mapToScene(event.pos())
-
-        GraphicsPort.drawing_state = GraphicsPort.DrawingState.Dragging
-        GraphicsPort.drawing_type = item.port_type
-        self.scene().update()
+        self.__new_connection = self.__create_new_connection()
+        self.__new_connection.start_graphics_port = item
+        self.__new_connection.end = self.mapToScene(event.pos())
 
         # Its important to don't pass the event to parent classes to avoid selecting
         # items when we start dragging.
@@ -140,7 +134,7 @@ class NodeEditorView(QGraphicsView):
         Args:
             event: Mouse event.
         """
-        if not self.__is_dragging_connection() or not self.new_connection:
+        if not self.__is_dragging_connection() or not self.__new_connection:
             super().mouseReleaseEvent(event)
             return
 
@@ -148,18 +142,14 @@ class NodeEditorView(QGraphicsView):
 
         # The conection must end on a COMPATIBLE GraphicsPort item
         if isinstance(item, GraphicsPort) and item.is_compatible_with(
-            self.new_connection.start_graphics_port  # type: ignore
+            self.__new_connection.start_graphics_port  # type: ignore
         ):
-            self.new_connection.end_graphics_port = item
+            self.__new_connection.end_graphics_port = item
         else:
-            self.__remove_connection(self.new_connection)
-
-        GraphicsPort.drawing_state = GraphicsPort.DrawingState.Normal
-        GraphicsPort.drawing_type = None
-        self.scene().update()
+            self.__remove_connection(self.__new_connection)
 
         # Reset the connection item
-        self.new_connection = None
+        self.__new_connection = None
 
         super().mouseReleaseEvent(event)
 
@@ -169,38 +159,42 @@ class NodeEditorView(QGraphicsView):
         Args:
             event: Mouse event.
         """
-        if not self.new_connection:
+        if not self.__new_connection:
             super().mouseMoveEvent(event)
             return
 
-        self.new_connection.end = self.mapToScene(event.pos())
+        self.__new_connection.end = self.mapToScene(event.pos())
 
         item = self.__item_clicked_on(event)
         if isinstance(item, GraphicsPort):
-            self.new_connection.end = item.pos()
+            self.__new_connection.end = item.pos()
 
         super().mouseMoveEvent(event)
 
     def __is_dragging_connection(self) -> bool:
         """Checks if the user is currently dragging a connection or not."""
-        return self.new_connection is not None
-
-    def __create_new_connection(self) -> "GraphicsConnection":
-        """Create a new connection on the scene."""
-        connection = GraphicsConnectionFactory()
-        self.scene().addItem(connection)
-
-        return connection
-
-    def __remove_connection(self, connection: "GraphicsConnection"):
-        """Removes the GraphicsConnection item from the scene."""
-        connection.start_graphics_port = None
-        connection.end_graphics_port = None
-        self.scene().removeItem(connection)
+        return self.__new_connection is not None
 
     def __item_clicked_on(self, event: "QMouseEvent") -> Union["GraphicsPort", Any]:
         """Returns the graphical item under the mouse."""
         return self.itemAt(event.pos())
+
+    def __create_new_connection(self) -> "GraphicsConnection":
+        """Create a new connection on the scene."""
+        connection = GraphicsConnectionFactory()
+
+        self.connection_created.emit(connection)
+
+        return connection
+
+    def __remove_new_connection(self, connection: "GraphicsConnection"):
+        """Removes the GraphicsConnection item from the scene."""
+        connection.start_graphics_port = None
+        connection.end_graphics_port = None
+
+        self.connection_removed.emit(connection)
+
+        return connection
 
     def __toggle_event_filter(self, toggle: bool, event_filter: "QObject"):
         """Toggles (Installs/Uninstalls) the specified event filter on this object."""

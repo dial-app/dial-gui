@@ -58,8 +58,6 @@ class GraphicsPortPainter:
         elif position == self.PortNamePosition.Right:
             self.__port_name.setPos(3, 1)
 
-        print(self.__port_name.pos())
-
         self.__port_name_position = position
 
     @property

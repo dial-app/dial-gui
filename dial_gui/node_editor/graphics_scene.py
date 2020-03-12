@@ -1,7 +1,6 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 import math
-from copy import deepcopy
 from typing import TYPE_CHECKING, List, Tuple
 
 from PySide2.QtCore import QLine, QRect
@@ -10,13 +9,14 @@ from PySide2.QtWidgets import QGraphicsScene
 
 from dial_core.utils.log import DEBUG, log_on_end
 
-from .graphics_node import GraphicsNodeFactory, GraphicsNode
+from .graphics_node import GraphicsNode, GraphicsNodeFactory
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QObject
     from PySide2.QtCore import QRectF
     from dial_core.node_editor import Node, Scene
     from PySide2.QtGui import QPainter
+    from .graphics_connection import GraphicsConnection  # noqa: F401
 
 
 class GraphicsScene(QGraphicsScene):
@@ -24,7 +24,8 @@ class GraphicsScene(QGraphicsScene):
         super().__init__(parent)
 
         self.__scene = scene
-        self.__graphics_nodes = []
+        self.__graphics_nodes: List["GraphicsNode"] = []
+        self.__graphics_connections: List["GraphicsConnection"] = []
 
         # Settings
         self.width = 64000
@@ -46,12 +47,14 @@ class GraphicsScene(QGraphicsScene):
 
         # Populate the graphics scene
         for node in self.__scene:
-            graphics_node = self.__create_new_graphics_node_from(node)
-            self.addItem(graphics_node)
-            self.__graphics_nodes.append(graphics_node)
+            self.add_graphics_node(self.__create_graphics_node_from(node))
 
         # UI
-        self.__setup_ui()
+        self.setBackgroundBrush(self._color_background)
+
+        self.setSceneRect(
+            -self.width // 2, -self.height // 2, self.width, self.height,
+        )
 
     @property
     def scene(self):
@@ -63,12 +66,33 @@ class GraphicsScene(QGraphicsScene):
         """Add a new Node to the GraphicsScene, making it visible."""
         self.__scene.add_node(node)
 
-        graphics_node = self.__create_new_graphics_node_from(node)
+        graphics_node = self.add_graphics_node(self.__create_graphics_node_from(node))
 
+        return graphics_node
+
+    def add_graphics_node(self, graphics_node: "GraphicsNode") -> "GraphicsNode":
         self.__graphics_nodes.append(graphics_node)
         self.addItem(graphics_node)
 
         return graphics_node
+
+    def add_graphics_connection(
+        self, graphics_connection: "GraphicsConnection"
+    ) -> "GraphicsConnection":
+        self.__graphics_connections.append(graphics_connection)
+        self.addItem(graphics_connection)
+
+        return graphics_connection
+
+    def remove_graphics_connection(self, graphics_connection: "GraphicsConnection"):
+        try:
+            self.__graphics_connections.remove(graphics_connection)
+            self.removeItem(graphics_connection)
+        except ValueError:
+            pass
+
+    def __create_graphics_node_from(self, node: "Node"):
+        return GraphicsNodeFactory(node, graphics_scene=self)
 
     def drawBackground(self, painter: "QPainter", rect: "QRectF"):
         """Draws the background for the scene."""
@@ -86,46 +110,34 @@ class GraphicsScene(QGraphicsScene):
         painter.setPen(self._pen_dark)
         painter.drawLines(dark_lines)
 
+    def __getstate__(self):
+        return {
+            "scene": self.scene,
+            "graphics_nodes": self.__graphics_nodes,
+        }
+
     def __setstate__(self, new_state: dict):
         """Composes a GraphicsScene object from a pickled dict."""
-        # Reset some settings from the old graphics items
-        for new_graphics_node, old_graphics_node in zip(
-            self.__graphics_nodes, new_state["graphics_nodes"]
-        ):
-            new_graphics_node.setPos(old_graphics_node.pos())
+        self.clear()
+
+        self.__scene = new_state["scene"]
+        self.__graphics_nodes = new_state["graphics_nodes"]
+
+        for graphics_node in self.__graphics_nodes:
+            self.addItem(graphics_node)
+
+            for graphics_port in list(graphics_node.inputs.values()) + list(
+                graphics_node.outputs.values()
+            ):
+                for graphics_connection in graphics_port.graphics_connections:
+                    # TODO: Solve items duplication
+                    # self.__graphics_connections.append(graphics_connection)
+                    self.addItem(graphics_connection)
+
+        self.update()
 
     def __reduce__(self):
-        return (
-            GraphicsScene,
-            (self.__scene,),
-            {"graphics_nodes": self.__graphics_nodes},
-        )
-
-    def __deepcopy__(self, memo: dict):
-        """Performs a Deep Copy of the GraphicsScene object.
-
-        Important:
-            The __init__ method must be EXPLICITLY called.
-        """
-        cls = self.__class__
-        result = cls.__new__(cls)
-
-        memo[id(self)] = result
-
-        result.__init__(deepcopy(self.scene, memo))
-
-        return result
-
-    def __setup_ui(self):
-        """Configure the graphics scene object."""
-        self.setBackgroundBrush(self._color_background)
-
-        self.setSceneRect(
-            -self.width // 2, -self.height // 2, self.width, self.height,
-        )
-
-    def __create_new_graphics_node_from(self, node: "Node") -> "GraphicsNode":
-        return GraphicsNodeFactory(node)
+        return (GraphicsScene, (self.__scene,), self.__getstate__())
 
     def __calculate_grid_boundaries(self, rect: "QRectF") -> "QRect":
         """Calculates the grid boundaries from the rect."""

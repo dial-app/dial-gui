@@ -47,11 +47,12 @@ class NodeEditorWindow(QWidget):
         self.__graphics_scene.add_node_to_graphics(node)
         self.__graphics_scene.add_node_to_graphics(node2)
 
-        # self.add_example_nodes()
-
-        self.__project_manager.new_project_added.connect(self.__new_project_added)
+        self.__project_manager.active_project_changed.connect(
+            self.__active_project_changed
+        )
 
         self.show()
+        self.__active_project_changed(self.__project_manager.active)
 
     def __setup_ui(self):
         """Sets the UI configuration."""
@@ -69,17 +70,14 @@ class NodeEditorWindow(QWidget):
         )
         menubar.popup(event.globalPos())
 
-    def __new_project_added(self, new_project: "ProjectGUI"):
-        print("New project added")
-        self.__node_editor_view.setScene(new_project.graphics_scene)
+    def __active_project_changed(self, project: "ProjectGUI"):
+        self.__node_editor_view.disconnect(self.__graphics_scene)
 
-    # # TODO: Remove from here
-    # def add_example_nodes(self):
-    #     dataset_node = NodeFactorySingleton().get_node("Dataset Editor")
-    #     layers_node = NodeFactorySingleton().get_node("Layers Editor")
-    #     compiler_node = NodeFactorySingleton().get_node("Model Compiler")
+        self.__node_editor_view.setScene(project.graphics_scene)
 
-    #     # self.__scene.add_node(my_node)
-    #     self.__scene.add_node(dataset_node)
-    #     self.__scene.add_node(layers_node)
-    #     self.__scene.add_node(compiler_node)
+        self.__node_editor_view.connection_created.connect(
+            self.__graphics_scene.add_graphics_connection
+        )
+        self.__node_editor_view.connection_removed.connect(
+            self.__graphics_scene.remove_graphics_connection
+        )
