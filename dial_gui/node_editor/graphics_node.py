@@ -38,7 +38,10 @@ class GraphicsNode(QGraphicsObject):
         widget_resized = Signal("QSizeF")
 
         def resize(self, x_or_point, y=None):
-            super().resize(x_or_point, y)
+            if isinstance(x_or_point, float):
+                super().resize(x_or_point, y)
+            else:
+                super().resize(x_or_point)
 
             self.widget_resized.emit(self.size())
 
