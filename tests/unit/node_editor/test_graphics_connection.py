@@ -3,8 +3,6 @@
 import pickle
 
 from PySide2.QtCore import QPointF
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QGraphicsItem
 
 
 def test_start(qtbot, connection_item):
@@ -143,16 +141,6 @@ def test_remove_connection(qtbot, connection_item, graphics_port_a, graphics_por
     # Underlying ports are still disconnected
     assert graphics_port_a._port not in graphics_port_b._port.connections
     assert graphics_port_b._port not in graphics_port_a._port.connections
-
-
-def test_item_change(qtbot, connection_item):
-    color = QColor("#444444")
-
-    connection_item.painter.color = color
-
-    connection_item.itemChange(QGraphicsItem.ItemSelectedChange, value=True)
-
-    assert connection_item.painter.color != color
 
 
 def test_pickable(qtbot, connection_item, graphics_port_a, graphics_port_b):

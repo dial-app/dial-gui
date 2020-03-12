@@ -25,3 +25,12 @@ def test_paint(mock_qpainter, connection_item):
     pen = QPen(connection_item.painter.color)
     pen.setWidth(connection_item.width)
     mock_qpainter.setPen.assert_called_once_with(pen)
+
+
+def test_highlight_color(qtbot, connection_item):
+    connection_item.painter.color = QColor("#444444")
+    color = connection_item.painter.color
+
+    connection_item.painter.highlight_color(True)
+
+    assert connection_item.painter._default_pen.color() != color

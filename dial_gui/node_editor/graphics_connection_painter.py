@@ -18,27 +18,25 @@ class GraphicsConnectionPainter:
         self.__graphics_connection = graphics_connection
 
         # Colors/Pens/Brushes
-        self.__color = QColor("black")
+        self._color = QColor("black")
 
-        self.__default_pen = QPen(self.__color)
-        self.__default_pen.setWidth(self.__graphics_connection.width)
+        self._default_pen = QPen(self._color)
+        self._default_pen.setWidth(self.__graphics_connection.width)
 
     @property
     def color(self) -> "QColor":
         """Returns the color of this connection."""
-        return self.__color
+        return self._color
 
     @color.setter
     def color(self, color: "QColor"):
         """Sets a new color for the connection, updating the QPen used for painting."""
-        self.__color = color
-        self.__default_pen.setColor(self.__color)
+        self._color = color
+        self._default_pen.setColor(self._color)
 
     def highlight_color(self, toggle: bool):
         """Paints the connection with a highlighted color if toggled."""
-        self.__default_pen.setColor(
-            self.__color.lighter(150) if toggle else self.__color
-        )
+        self._default_pen.setColor(self._color.lighter(150) if toggle else self._color)
 
     def paint(
         self,
@@ -47,7 +45,7 @@ class GraphicsConnectionPainter:
         widget: "QWidget" = None,
     ):
         """Paints the graphics connection item."""
-        painter.setPen(self.__default_pen)
+        painter.setPen(self._default_pen)
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(self.__graphics_connection.path())
 
