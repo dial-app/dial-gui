@@ -30,7 +30,7 @@ class PluginManagerDialog(QDialog):
 
     def sizeHint(self) -> "QSize":
         """Preferred size of this dialog."""
-        return QSize(800, 600)
+        return QSize(500, 300)
 
 
 PluginManagerDialogFactory = providers.Factory(

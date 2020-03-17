@@ -13,7 +13,8 @@ class PluginsTableView(QTableView):
     def __init__(self, parent: "QWidget" = None):
         super().__init__(parent)
 
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.horizontalHeader().setStretchLastSection(True)
 
 
 PluginsTableViewFactory = providers.Factory(PluginsTableView)

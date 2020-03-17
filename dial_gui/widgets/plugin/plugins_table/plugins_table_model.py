@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, Optional
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide2.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt
 
 from dial_core.plugin import PluginManagerSingleton
 
@@ -15,40 +15,54 @@ if TYPE_CHECKING:
 
 class PluginsTableModel(QAbstractTableModel):
     class ColumnLabel(IntEnum):
-        Name = 0
-        Description = 1
-        Version = 2
-        Active = 3
+        Active = 0
+        Name = 1
+        Description = 2
+        Version = 3
 
     def __init__(self, plugin_manager: "PluginManager", parent: "QObject" = None):
         super().__init__(parent)
 
         self.__plugin_manager = plugin_manager
 
-        self.column_names = ("Active", "Name", "Description", "Version")
-
         self.__role_map = {
             Qt.DisplayRole: self.__data_display_role,
             Qt.CheckStateRole: self.__data_checkstate_role,
+            Qt.TextAlignmentRole: self.__data_textalignment_role,
+            Qt.SizeHintRole: self.__data_sizehint_role,
         }
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.__plugin_manager.installed_plugins)
 
     def columnCount(self, parent=QModelIndex()):
-        return len(self.column_names)
+        return len(self.ColumnLabel)
+
+    def index(self, row: int, column: int, parent: "QModelIndex") -> "QModelIndex":
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+
+        return self.createIndex(
+            row, column, list(self.__plugin_manager.installed_plugins.values())[row]
+        )
+
+    def flags(self, index: "QModelIndex") -> int:
+        general_flags = super().flags(index)
+
+        if index.column() == self.ColumnLabel.Active:
+            return general_flags | Qt.ItemIsUserCheckable
+
+        return general_flags
 
     def headerData(
         self, section: int, orientation: "Qt.Orientation", role=Qt.DisplayRole
     ) -> Optional[str]:
+
         if role != Qt.DisplayRole:
             return None
 
         if orientation == Qt.Horizontal:
-            return self.column_names[section]
-
-        if orientation == Qt.Vertical:
-            return str(section)
+            return self.ColumnLabel(section).name
 
         return None
 
@@ -81,8 +95,26 @@ class PluginsTableModel(QAbstractTableModel):
 
         plugin: "Plugin" = index.internalPointer()
 
-        if index.flags() & Qt.ItemIsUserCheckeable:
+        if index.flags() & Qt.ItemIsUserCheckable:
             return Qt.Checked if plugin.active else Qt.Unchecked
+
+        return None
+
+    def __data_textalignment_role(self, index: "QModelIndex"):
+        if not index.isValid():
+            return None
+
+        if index.column() == self.ColumnLabel.Version:
+            return Qt.AlignCenter
+
+        return None
+
+    def __data_sizehint_role(self, index: "QModelIndex"):
+        if not index.isValid():
+            return None
+
+        if index.column() == self.ColumnLabel.Active:
+            return QSize(0, 0)
 
         return None
 

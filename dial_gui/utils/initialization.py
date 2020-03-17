@@ -4,12 +4,16 @@ Functions to check that python versions, libraries... used by the program are co
 """
 
 
+import os
 import signal
 import sys
 from typing import TYPE_CHECKING
 
 import dial_core
+from dial_core.plugin import PluginManagerSingleton
 from dial_core.utils import log
+
+from . import application
 
 if TYPE_CHECKING:
     import argparse
@@ -54,3 +58,19 @@ def __gui_initialization(args: "argparse.Namespace"):
 
     app = QApplication()
     app.setApplicationName("dial")
+
+    # Load all plugins
+
+    plugins_manager = PluginManagerSingleton()
+
+    for plugin_name in next(os.walk(application.plugins_directory()))[1]:
+        try:
+            plugin_path = os.path.join(application.plugins_directory(), plugin_name)
+            plugin = plugins_manager.install_plugin(plugin_path)
+            plugin.load()
+
+            LOGGER.info('Plugin "%s" loaded.', plugin.name)
+
+        except FileNotFoundError as err:
+            LOGGER.warning("Couldn't load plugin in ", plugins_manager)
+            LOGGER.exception(err)

@@ -27,12 +27,15 @@ class NodesMenu(QMenu):
         self.__node_editor_view = node_editor_view
 
         for node_name, factory in node_registry.nodes.items():
+            print(node_name, factory)
+
+            node = factory()
+            print("ASDFASDF", node)
+
             action = QAction(node_name, self)
 
             action.triggered.connect(
-                lambda _=False, create_node=factory: self.__add_node_to_scene(
-                    create_node()
-                )
+                lambda _=False, factory=factory: self.__add_node_to_scene(factory())
             )
 
             self.addAction(action)

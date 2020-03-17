@@ -3,9 +3,9 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
+from PySide2.QtCore import QUrl
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QAction, QMenu
-from PySide2.QtCore import QUrl
 
 from dial_gui.utils import application
 from dial_gui.widgets.plugin import PluginManagerDialogFactory

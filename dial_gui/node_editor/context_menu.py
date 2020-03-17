@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QMenu
 
-from dial_core.node_editor import NodeRegistrySingleton
-from dial_gui.widgets.menus import FileMenu, NodesMenu
+from dial_gui.widgets.menus import NodesMenuFactory
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -23,11 +22,8 @@ class DialContextMenu(QMenu):
     ):
         super().__init__("Menu", parent)
 
-        self.addMenu(FileMenu(project_manager=project_manager, parent=self))
         self.addMenu(
-            NodesMenu(
-                node_factory=NodeFactorySingleton(),
-                graphics_scene=graphics_scene,
-                node_editor_view=node_editor_view,
+            NodesMenuFactory(
+                graphics_scene=graphics_scene, node_editor_view=node_editor_view,
             )
         )
