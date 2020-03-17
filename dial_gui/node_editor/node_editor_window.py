@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from dial_core.node_editor import Node
-
 from .context_menu import DialContextMenu
 from .node_editor_view import NodeEditorView
 
@@ -34,18 +32,10 @@ class NodeEditorWindow(QWidget):
 
         self.__node_editor_view.setScene(self.__graphics_scene)
 
-        self.__setup_ui()
+        self.__main_layout.addWidget(self.__node_editor_view)
+        self.__main_layout.setContentsMargins(0, 0, 0, 0)
 
-        node = Node(title="hueheuheu")
-        node.add_input_port(name="asdf", port_type=int)
-        node.add_output_port(name="outut", port_type=str)
-
-        node2 = Node(title="hahaha")
-        node2.add_input_port(name="inn", port_type=str)
-        node2.add_input_port(name="inn2", port_type=str)
-
-        self.__graphics_scene.add_node_to_graphics(node)
-        self.__graphics_scene.add_node_to_graphics(node2)
+        self.setLayout(self.__main_layout)
 
         self.__project_manager.active_project_changed.connect(
             self.__active_project_changed
@@ -53,13 +43,6 @@ class NodeEditorWindow(QWidget):
 
         self.show()
         self.__active_project_changed(self.__project_manager.active)
-
-    def __setup_ui(self):
-        """Sets the UI configuration."""
-        self.__main_layout.addWidget(self.__node_editor_view)
-        self.__main_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.setLayout(self.__main_layout)
 
     def contextMenuEvent(self, event: "QContextMenuEvent"):
         menubar = DialContextMenu(

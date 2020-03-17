@@ -68,14 +68,14 @@ class GraphicsNodePainter:
         self.__outline_default_color = color
 
     def boundingRect(self) -> "QRectF":
-        proxy_rect = self.__graphics_node._node_widget_proxy.boundingRect()
+        proxy_rect = self.__graphics_node._proxy_widget.boundingRect()
 
         return proxy_rect.adjusted(
             0, 0, self.padding * 2, self.title_height() + self.padding * 2
         ).normalized()
 
     def repositionWidget(self):
-        self.__graphics_node._node_widget_proxy.setPos(
+        self.__graphics_node._proxy_widget.setPos(
             self.padding, self.title_height() + self.padding
         )
 

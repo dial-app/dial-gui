@@ -14,7 +14,7 @@ from PySide2.QtWidgets import (
     QWidget,
 )
 
-from dial_gui.event_filters import ResizableItemEventFilter
+from dial_gui.event_filters import ResizableNodeEventFilter
 
 from .graphics_node_painter import GraphicsNodePainterFactory
 from .graphics_port import GraphicsPortFactory
@@ -67,9 +67,9 @@ class GraphicsNode(QGraphicsObject):
             self._node.outputs, OutputGraphicsPortPainterFactory
         )
         # Proxy
-        self._node_widget_proxy = self.ProxyWidget(parent=self)
+        self._proxy_widget = self.ProxyWidget(parent=self)
 
-        self._node_widget_proxy.setWidget(
+        self._proxy_widget.setWidget(
             self._node.inner_widget if self._node.inner_widget else QWidget()
         )
 
@@ -83,12 +83,11 @@ class GraphicsNode(QGraphicsObject):
         self.setAcceptHoverEvents(True)
 
         # Filters
-        self.__resizable_item_event_filter = ResizableItemEventFilter(parent=self)
-        # TODO: Fix events not looked
-        self._node_widget_proxy.installEventFilter(self.__resizable_item_event_filter)
+        self.__resizable_node_event_filter = ResizableNodeEventFilter(parent=self)
+        self.installEventFilter(self.__resizable_node_event_filter)
 
         # Connections
-        self._node_widget_proxy.widget_resized.connect(
+        self._proxy_widget.widget_resized.connect(
             lambda _: self._graphics_node_painter.recalculateGeometry()
         )
 
@@ -141,7 +140,7 @@ class GraphicsNode(QGraphicsObject):
         in the node when pressed.
         """
 
-        node_inner_widget = self._node_widget_proxy.widget()
+        node_inner_widget = self._proxy_widget.widget()
         previous_node_size = node_inner_widget.size()
 
         show_here_button = QPushButton("Show here")
@@ -178,7 +177,7 @@ class GraphicsNode(QGraphicsObject):
         """Sets a new widget inside the node."""
         self.prepareGeometryChange()
 
-        self._node_widget_proxy.setWidget(widget)
+        self._proxy_widget.setWidget(widget)
 
         self._graphics_node_painter.repositionWidget()
         self._graphics_node_painter.recalculateGeometry()
@@ -205,13 +204,13 @@ class GraphicsNode(QGraphicsObject):
         return graphics_ports_dict
 
     def __getstate__(self):
-        return {"pos": self.pos(), "proxy_size": self._node_widget_proxy.size()}
+        return {"pos": self.pos(), "proxy_size": self._proxy_widget.size()}
 
     def __setstate__(self, new_state: dict):
         self.prepareGeometryChange()
         self.setPos(new_state["pos"])
 
-        self._node_widget_proxy.resize(new_state["proxy_size"])
+        self._proxy_widget.resize(new_state["proxy_size"])
 
     def __reduce__(self):
         return (GraphicsNode, (self._node, self._painter_factory), self.__getstate__())

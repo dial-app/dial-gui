@@ -6,30 +6,30 @@ from typing import TYPE_CHECKING
 from PySide2.QtCore import QEvent, QObject, Qt
 
 if TYPE_CHECKING:
-    from dial_gui.widget_editor import Graphicswidget
+    from dial_gui.node_editor import GraphicsNode
 
 
-class ResizableItemEventFilter(QObject):
-    """The ResizableItemEventFilter class provides resizing anchors for a Graphicswidget
+class ResizableNodeEventFilter(QObject):
+    """The ResizableNodeEventFilter class provides resizing anchors for a Graphicsnode
     object.
 
-    The anchors can be dragged freely using the mouse, and the widget will be resized
+    The anchors can be dragged freely using the mouse, and the node will be resized
     accordingly.
 
     Important:
-        This filter only works with a Graphicswidget object.
+        This filter only works with a GraphicsNode object.
 
     Attributes:
         resize_margins: Size of the margins that can be clicked to start the resizing
         event.
         button_used_for_resizing: The button that mast be pressed and dragged for
-        resizing the widget.
+        resizing the node.
 
     Examples:
-        widget = Graphicswidget()
-        resizable_widget_event_filter = ResizablewidgetEventFilter()
+        node = GraphicsNode()
+        resizable_node_event_filter = ResizableNodeEventFilter()
 
-        widget.installEventFilter(resizable_widget_event_filter)
+        node.installEventFilter(resizable_node_event_filter)
     """
 
     class State(Enum):
@@ -54,7 +54,7 @@ class ResizableItemEventFilter(QObject):
         self.button_used_for_resizing = Qt.LeftButton
 
     @property
-    def state(self) -> "ResizableItemEventFilter.State":
+    def state(self) -> "ResizableNodeEventFilter.State":
         """Returns the state of the event filter (Normal, Resizing...)"""
         return self.__state
 
@@ -62,36 +62,36 @@ class ResizableItemEventFilter(QObject):
         """Checks if the event filter is currently resizing an object."""
         return self.__state == self.State.Resizing
 
-    def eventFilter(self, widget: "QObject", event: "QEvent") -> bool:
+    def eventFilter(self, node: "GraphicsNode", event: "QEvent") -> bool:
         """Tracks the mouse movements to do the actual resizing.
 
-        When the mouse hovers over the widget, the cursor icon is changed to reflect the
-        direction of the resizing (P.E: If the mouse is on the left side of the widget,
+        When the mouse hovers over the node, the cursor icon is changed to reflect the
+        direction of the resizing (P.E: If the mouse is on the left side of the node,
         a <-> icon will appear).
 
-        When the resizing button is clicked, the widget will be resized until the button
+        When the resizing button is clicked, the node will be resized until the button
         is released.
         """
         if event.type() == QEvent.GraphicsSceneHoverMove:
-            self.__track_margins_under_cursor(widget, event)
+            self.__track_margins_under_cursor(node, event)
             return True
 
         if self.__resize_button_clicked(event) and self.__is_inside_resize_margins(
-            widget, event
+            node, event
         ):
-            self.__start_resizing_widget(widget, event)
+            self.__start_resizing_node(node, event)
             return True
 
         if self.is_resizing():
             if event.type() == QEvent.GraphicsSceneMouseMove:
-                self.__resizing_widget(widget, event)
+                self.__resizing_node(node, event)
                 return True
 
             if self.__resize_button_released(event):
-                self.__stop_resizing_widget(widget, event)
+                self.__stop_resizing_node(node, event)
                 return True
 
-        return super().eventFilter(widget, event)
+        return super().eventFilter(node, event)
 
     def __resize_button_clicked(self, event: "QEvent") -> bool:
         """Checks if the button designed for resizing was pressed."""
@@ -107,21 +107,21 @@ class ResizableItemEventFilter(QObject):
             and event.button() == self.button_used_for_resizing
         )
 
-    def __start_resizing_widget(self, widget: "Graphicswidget", event: "QEvent"):
-        """Starts resizing the widget.
+    def __start_resizing_node(self, node: "GraphicsNode", event: "QEvent"):
+        """Starts resizing the node.
 
         Saves some positions for reference during the resizing event.
         """
         self.__state = self.State.Resizing
 
-        # Saves some information of the cursor and the widget prior to resizing
+        # Saves some information of the cursor and the node prior to resizing
         self.__initial_resize_pos = event.scenePos()
-        self.__initial_widget_pos = widget.pos()
-        self.__initial_widget_size = widget.size()
+        self.__initial_node_pos = node.pos()
+        self.__initial_node_size = node._proxy_widget.size()
 
-    def __resizing_widget(self, widget: "Graphicswidget", event: "QEvent"):
-        """Resizes the widget while dragging one of the margins. Calculates the resulting
-        size and position of the widget and applies it."""
+    def __resizing_node(self, node: "GraphicsNode", event: "QEvent"):
+        """Resizes the node while dragging one of the margins. Calculates the resulting
+        size and position of the node and applies it."""
         diff = event.scenePos() - self.__initial_resize_pos
 
         new_x = 0
@@ -132,8 +132,10 @@ class ResizableItemEventFilter(QObject):
         if self.__margins_clicked & self.MarginClicked.Left:
             new_x = (
                 diff.x()
-                if widget.size().width() > widget.minimumSize().width()
-                else self.__initial_widget_size.width() - widget.minimumSize().width()
+                if node._proxy_widget.size().width()
+                > node._proxy_widget.minimumSize().width()
+                else self.__initial_node_size.width()
+                - node._proxy_widget.minimumSize().width()
             )
             new_w = -diff.x()
 
@@ -143,38 +145,36 @@ class ResizableItemEventFilter(QObject):
         if self.__margins_clicked & self.MarginClicked.Top:
             new_y = (
                 diff.y()
-                if widget.size().height() > widget.minimumSize().height()
-                else self.__initial_widget_size.height() - widget.minimumSize().height()
+                if node._proxy_widget.size().height()
+                > node._proxy_widget.minimumSize().height()
+                else self.__initial_node_size.height()
+                - node._proxy_widget.minimumSize().height()
             )
             new_h = -diff.y()
 
         elif self.__margins_clicked & self.MarginClicked.Bottom:
             new_h = diff.y()
 
-        widget.prepareGeometryChange()
+        node.prepareGeometryChange()
 
-        widget.resize(
-            self.__initial_widget_size.width() + new_w,
-            self.__initial_widget_size.height() + new_h,
+        node._proxy_widget.resize(
+            self.__initial_node_size.width() + new_w,
+            self.__initial_node_size.height() + new_h,
         )
 
-        widget.setPos(
-            self.__initial_widget_pos.x() + new_x, self.__initial_widget_pos.y() + new_y
+        node.setPos(
+            self.__initial_node_pos.x() + new_x, self.__initial_node_pos.y() + new_y
         )
 
-        # widget.recalculateGeometry()
-
-    def __stop_resizing_widget(self, widget: "Graphicswidget", event: "QEvent"):
-        """Stops resizing the widget."""
+    def __stop_resizing_node(self, node: "GraphicsNode", event: "QEvent"):
+        """Stops resizing the node."""
         self.__state = self.State.Idle
 
-    def __is_inside_resize_margins(
-        self, widget: "Graphicswidget", event: "QEvent"
-    ) -> bool:
-        """Checks if the cursor is currently on the margins of the widget."""
+    def __is_inside_resize_margins(self, node: "GraphicsNode", event: "QEvent") -> bool:
+        """Checks if the cursor is currently on the margins of the node."""
         return self.__margins_clicked != self.MarginClicked.NoMargin
 
-    def __track_margins_under_cursor(self, widget: "Graphicswidget", event: "QEvent"):
+    def __track_margins_under_cursor(self, node: "GraphicsNode", event: "QEvent"):
         """Sets different flags marking on top of which margin the cursor is."""
         x_pos = event.pos().x()
         y_pos = event.pos().y()
@@ -182,10 +182,10 @@ class ResizableItemEventFilter(QObject):
         # Horizontal margins
         if x_pos <= self.resize_margins:
             self.__margins_clicked |= self.MarginClicked.Left
-            widget.setCursor(Qt.SizeHorCursor)
-        elif widget.boundingRect().width() - x_pos <= self.resize_margins:
+            node.setCursor(Qt.SizeHorCursor)
+        elif node.boundingRect().width() - x_pos <= self.resize_margins:
             self.__margins_clicked |= self.MarginClicked.Right
-            widget.setCursor(Qt.SizeHorCursor)
+            node.setCursor(Qt.SizeHorCursor)
         else:
             self.__margins_clicked &= ~self.MarginClicked.Left
             self.__margins_clicked &= ~self.MarginClicked.Right
@@ -193,31 +193,31 @@ class ResizableItemEventFilter(QObject):
         # Vertical margins
         if y_pos <= self.resize_margins:
             self.__margins_clicked |= self.MarginClicked.Top
-            widget.setCursor(Qt.SizeVerCursor)
-        elif widget.boundingRect().height() - y_pos <= self.resize_margins:
+            node.setCursor(Qt.SizeVerCursor)
+        elif node.boundingRect().height() - y_pos <= self.resize_margins:
             self.__margins_clicked |= self.MarginClicked.Bottom
-            widget.setCursor(Qt.SizeVerCursor)
+            node.setCursor(Qt.SizeVerCursor)
         else:
             self.__margins_clicked &= ~self.MarginClicked.Top
             self.__margins_clicked &= ~self.MarginClicked.Bottom
 
         if self.__margins_clicked == (self.MarginClicked.Left | self.MarginClicked.Top):
-            widget.setCursor(Qt.SizeFDiagCursor)
+            node.setCursor(Qt.SizeFDiagCursor)
 
         if self.__margins_clicked == (
             self.MarginClicked.Left | self.MarginClicked.Bottom
         ):
-            widget.setCursor(Qt.SizeBDiagCursor)
+            node.setCursor(Qt.SizeBDiagCursor)
 
         if self.__margins_clicked == (
             self.MarginClicked.Right | self.MarginClicked.Top
         ):
-            widget.setCursor(Qt.SizeBDiagCursor)
+            node.setCursor(Qt.SizeBDiagCursor)
 
         if self.__margins_clicked == (
             self.MarginClicked.Right | self.MarginClicked.Bottom
         ):
-            widget.setCursor(Qt.SizeFDiagCursor)
+            node.setCursor(Qt.SizeFDiagCursor)
 
         if self.__margins_clicked == self.MarginClicked.NoMargin:
-            widget.unsetCursor()
+            node.unsetCursor()

@@ -27,11 +27,6 @@ class NodesMenu(QMenu):
         self.__node_editor_view = node_editor_view
 
         for node_name, factory in node_registry.nodes.items():
-            print(node_name, factory)
-
-            node = factory()
-            print("ASDFASDF", node)
-
             action = QAction(node_name, self)
 
             action.triggered.connect(
