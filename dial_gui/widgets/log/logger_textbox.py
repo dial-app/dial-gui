@@ -1,8 +1,12 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import dependency_injector.providers as providers
+
 import logging
 
 from PySide2.QtWidgets import QPlainTextEdit, QVBoxLayout, QWidget
+
+from dial_core.utils import log
 
 
 class LoggerTextboxWidget(logging.Handler, QWidget):
@@ -51,3 +55,5 @@ class LoggerTextboxWidget(logging.Handler, QWidget):
         layout.addWidget(self._textbox)
 
         self.setLayout(layout)
+
+LoggerTextboxFactory = providers.Factory(LoggerTextboxWidget, log.FORMATTER)

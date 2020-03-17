@@ -1,5 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import dependency_injector.providers as providers
+
 import math
 from typing import TYPE_CHECKING, List, Tuple
 
@@ -8,6 +10,7 @@ from PySide2.QtGui import QColor, QPen
 from PySide2.QtWidgets import QGraphicsScene
 
 from dial_core.utils.log import DEBUG, log_on_end
+from dial_core.node_editor import SceneFactory
 
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
 
@@ -180,3 +183,6 @@ class GraphicsScene(QGraphicsScene):
                 dark_lines.append(QLine(grid_rect.left(), y, grid_rect.right(), y))
 
         return light_lines, dark_lines
+
+
+GraphicsSceneFactory = providers.Factory(GraphicsScene, scene=SceneFactory)

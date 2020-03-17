@@ -1,12 +1,14 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import dependency_injector.providers as providers
+
 from PySide2.QtCore import QObject, Signal, Slot
 from PySide2.QtWidgets import QFileDialog, QWidget
 
 from dial_core.project import ProjectManager
 from dial_core.utils import log
 
-from .project_gui import ProjectGUI
+from .project_gui import ProjectGUI, ProjectGUIFactory
 
 LOGGER = log.get_logger(__name__)
 
@@ -66,3 +68,8 @@ class ProjectManagerGUI(QObject, ProjectManager):
 
         else:
             LOGGER.info("Invalid file path. Saving cancelled.")
+
+ProjectManagerGUISingleton = providers.Singleton(
+    ProjectManagerGUI, default_project=ProjectGUIFactory
+)
+

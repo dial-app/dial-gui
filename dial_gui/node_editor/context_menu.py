@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QMenu
 
-from dial_core.node_editor import NodeFactorySingleton
+from dial_core.node_editor import NodeRegistrySingleton
 from dial_gui.widgets.menus import FileMenu, NodesMenu
 
 if TYPE_CHECKING:

@@ -1,5 +1,7 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import dependency_injector.providers as providers
+
 from typing import TYPE_CHECKING
 
 from PySide2.QtCore import QSize
@@ -8,7 +10,10 @@ from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
 from dial_core.utils import log
 from dial_gui.node_editor import NodeEditorWindow
 from dial_gui.utils import application
-from dial_gui.widgets.menus import FileMenu
+from dial_gui.widgets.log import LoggerDialogFactory
+from dial_gui.project import ProjectManagerGUISingleton
+
+from .main_menubar import MainMenuBarFactory
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -21,21 +26,14 @@ class MainWindow(QMainWindow):
     """The main window for the program."""
 
     def __init__(
-        self, menubar_factory, logger_dialog, project_manager, parent: "QWidget" = None,
+        self, main_menubar, project_manager, parent: "QWidget" = None,
     ):
         super().__init__(parent)
-
-        # Initialize logging first (Order is important)
-        self.__logger_dialog = logger_dialog
-
-        self.__setup_logger_dialog()
 
         # Initialize widgets
         self.__project_manager = project_manager
 
-        self.__main_menu_bar = menubar_factory(
-            file_menu=FileMenu(self.__project_manager)
-        )
+        self.__main_menu_bar = main_menubar
         self.__main_menu_bar.setParent(self)
 
         self.__tabs_widget = QTabWidget(self)
@@ -47,18 +45,6 @@ class MainWindow(QMainWindow):
 
         # Configure ui
         self.__setup_ui()
-        self.__main_menu_bar.toggle_log_window.connect(self.__toggle_log_window)
-
-    def sizeHint(self) -> "QSize":
-        """Returns the size of the main window."""
-        return QSize(1000, 800)
-
-    def __setup_logger_dialog(self):
-        # Add the logger window as a new log handler
-        log.add_handler_to_root(self.__logger_dialog.handler())
-
-        # Write on the window all the previous log messages
-        self.__logger_dialog.textbox.set_plain_text(log.LOG_STREAM.getvalue())
 
     def __setup_ui(self):
         # Set window title
@@ -83,5 +69,12 @@ class MainWindow(QMainWindow):
         self.__tabs_widget.tabBar().tabButton(0, QTabBar.RightSide).deleteLater()
         self.__tabs_widget.tabBar().setTabButton(0, QTabBar.RightSide, None)
 
-    def __toggle_log_window(self):
-        self.__logger_dialog.show()
+    def sizeHint(self) -> "QSize":
+        """Returns the size of the main window."""
+        return QSize(1000, 800)
+
+MainWindowFactory = providers.Factory(
+    MainWindow,
+    main_menubar=MainMenuBarFactory,
+    project_manager=ProjectManagerGUISingleton
+)

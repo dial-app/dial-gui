@@ -4,6 +4,7 @@
 This package includes several widgets that can be used to display a logging dialog.
 """
 
-from .containers import LoggerDialogFactory, LoggerTextboxFactory
+from .logger_dialog import LoggerDialogFactory
+from .logger_textbox import LoggerTextboxFactory
 
 __all__ = ["LoggerDialogFactory", "LoggerTextboxFactory"]

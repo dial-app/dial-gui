@@ -1,9 +1,13 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import dependency_injector.providers as providers
+
 from typing import TYPE_CHECKING
 
 from PySide2.QtGui import QKeySequence
 from PySide2.QtWidgets import QAction, QApplication, QMenu
+
+from dial_gui.project import ProjectManagerGUISingleton
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -48,3 +52,6 @@ class FileMenu(QMenu):
         self.addAction(self._save_project_as_act)
         self.addSeparator()
         self.addAction(self._quit_act)
+
+FileMenuFactory = providers.Factory(FileMenu,
+                                    project_manager=ProjectManagerGUISingleton)
