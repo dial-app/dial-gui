@@ -16,4 +16,5 @@ class PluginManagerDialog(QDialog):
         """Preferred size of this dialog."""
         return QSize(800, 600)
 
+
 PluginManagerDialogFactory = providers.Factory(PluginManagerDialog)

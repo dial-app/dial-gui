@@ -69,7 +69,7 @@ class ProjectManagerGUI(QObject, ProjectManager):
         else:
             LOGGER.info("Invalid file path. Saving cancelled.")
 
+
 ProjectManagerGUISingleton = providers.Singleton(
     ProjectManagerGUI, default_project=ProjectGUIFactory
 )
-

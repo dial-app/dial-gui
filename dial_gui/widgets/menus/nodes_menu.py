@@ -43,4 +43,5 @@ class NodesMenu(QMenu):
         global_pos = self.__node_editor_view.mapFromGlobal(self.pos())
         graphics_node.setPos(self.__node_editor_view.mapToScene(global_pos))
 
+
 NodesMenuFactory = providers.Factory(NodesMenu, node_registry=NodeRegistrySingleton)

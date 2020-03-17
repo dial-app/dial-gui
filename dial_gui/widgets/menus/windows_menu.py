@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from dial_gui.widgets.log import LoggerDialog
     from PySide2.QtWidgets import QWidget
 
+
 class WindowsMenu(QMenu):
     def __init__(self, logger_dialog: "LoggerDialog", parent: "QWidget" = None):
         super().__init__("&Windows", parent)
@@ -21,7 +22,6 @@ class WindowsMenu(QMenu):
         self._show_log_act.triggered.connect(self.__toggle_logger_dialog)
 
         self.addAction(self._show_log_act)
-
 
     def __toggle_logger_dialog(self):
         self.__logger_dialog.show()

@@ -53,5 +53,7 @@ class FileMenu(QMenu):
         self.addSeparator()
         self.addAction(self._quit_act)
 
-FileMenuFactory = providers.Factory(FileMenu,
-                                    project_manager=ProjectManagerGUISingleton)
+
+FileMenuFactory = providers.Factory(
+    FileMenu, project_manager=ProjectManagerGUISingleton
+)

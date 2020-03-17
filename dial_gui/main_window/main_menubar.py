@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING
 from PySide2.QtCore import Signal
 from PySide2.QtWidgets import QAction, QMenuBar
 
-from dial_gui.widgets.menus import FileMenuFactory, PluginsMenuFactory, WindowsMenuFactory
+from dial_gui.widgets.menus import (
+    FileMenuFactory,
+    PluginsMenuFactory,
+    WindowsMenuFactory,
+)
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -18,8 +22,14 @@ class MainMenuBar(QMenuBar):
     """
     Top menu bar for the main window.
     """
-    def __init__(self, file_menu: "FileMenu", plugins_menu: "PluginsMenu", windows_menu:
-                 "WindowsMenu", parent: "QWidget" = None):
+
+    def __init__(
+        self,
+        file_menu: "FileMenu",
+        plugins_menu: "PluginsMenu",
+        windows_menu: "WindowsMenu",
+        parent: "QWidget" = None,
+    ):
         super().__init__(parent)
 
         self.__file_menu = file_menu
@@ -31,6 +41,10 @@ class MainMenuBar(QMenuBar):
         self.addMenu(self.__plugins_menu)
         self.addMenu(self.__windows_menu)
 
-MainMenuBarFactory = providers.Factory(MainMenuBar, file_menu=FileMenuFactory,
-                                       plugins_menu=PluginsMenuFactory,
-                                       windows_menu=WindowsMenuFactory)
+
+MainMenuBarFactory = providers.Factory(
+    MainMenuBar,
+    file_menu=FileMenuFactory,
+    plugins_menu=PluginsMenuFactory,
+    windows_menu=WindowsMenuFactory,
+)

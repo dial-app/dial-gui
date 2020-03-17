@@ -19,7 +19,7 @@ class ProjectGUI(Project):
     def __reduce__(self):
         return (ProjectGUI, (self.name, self.__graphics_scene))
 
+
 ProjectGUIFactory = providers.Factory(
-    ProjectGUI, name="Default Project",
-    graphics_scene=GraphicsSceneFactory
+    ProjectGUI, name="Default Project", graphics_scene=GraphicsSceneFactory
 )

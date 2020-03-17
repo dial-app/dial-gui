@@ -73,8 +73,9 @@ class MainWindow(QMainWindow):
         """Returns the size of the main window."""
         return QSize(1000, 800)
 
+
 MainWindowFactory = providers.Factory(
     MainWindow,
     main_menubar=MainMenuBarFactory,
-    project_manager=ProjectManagerGUISingleton
+    project_manager=ProjectManagerGUISingleton,
 )

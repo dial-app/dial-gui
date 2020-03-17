@@ -8,6 +8,13 @@ from .nodes_menu import NodesMenu, NodesMenuFactory
 from .plugins_menu import PluginsMenu, PluginsMenuFactory
 from .windows_menu import WindowsMenu, WindowsMenuFactory
 
-__all__= ["FileMenu", "FileMenuFactory", "NodesMenu", "NodesMenuFactory", "PluginsMenu",
-          "PluginsMenuFactory", "WindowsMenu", "WindowsMenuFactory"]
-
+__all__ = [
+    "FileMenu",
+    "FileMenuFactory",
+    "NodesMenu",
+    "NodesMenuFactory",
+    "PluginsMenu",
+    "PluginsMenuFactory",
+    "WindowsMenu",
+    "WindowsMenuFactory",
+]

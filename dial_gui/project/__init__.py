@@ -3,6 +3,9 @@
 from .project_gui import ProjectGUI, ProjectGUIFactory
 from .project_manager_gui import ProjectManagerGUI, ProjectManagerGUISingleton
 
-__all__ = ["ProjectGUI", "ProjectGUIFactory", "ProjectManagerGUI",
-           "ProjectManagerGUISingleton"]
-
+__all__ = [
+    "ProjectGUI",
+    "ProjectGUIFactory",
+    "ProjectManagerGUI",
+    "ProjectManagerGUISingleton",
+]

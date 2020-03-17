@@ -53,6 +53,7 @@ class LoggerDialog(QDialog):
         """Preferred size of this dialog."""
         return QSize(800, 600)
 
+
 LoggerDialogFactory = providers.Factory(
     LoggerDialog, textbox_widget=LoggerTextboxFactory
 )
