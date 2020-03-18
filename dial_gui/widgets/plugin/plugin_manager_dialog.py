@@ -6,7 +6,9 @@ import dependency_injector.providers as providers
 from PySide2.QtCore import QSize
 from PySide2.QtWidgets import QDialog, QVBoxLayout, QGroupBox
 
-from dial_gui.widgets import log
+from dial_gui.widgets.log import LoggerTextboxFactory
+from dial_core.utils import log
+import logging
 
 from .plugins_table import PluginsTableWidgetFactory
 
@@ -23,7 +25,13 @@ class PluginManagerDialog(QDialog):
         self.__plugins_table_widget = plugins_table_widget
         self.__plugins_table_widget.setParent(self)
 
-        self.__actions_output_textarea = log.LoggerTextboxFactory(parent=self)
+        self.__actions_output_textarea = LoggerTextboxFactory(
+            formatter=logging.Formatter(
+                "%(asctime)s - %(levelname)s: %(message)s", "%H:%M:%S"
+            ),
+            parent=self,
+        )
+        log.get_logger("plugins").addHandler(self.__actions_output_textarea)
 
         self.__main_layout = QVBoxLayout()
 

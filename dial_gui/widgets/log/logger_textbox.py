@@ -57,4 +57,4 @@ class LoggerTextboxWidget(logging.Handler, QWidget):
         self.setLayout(layout)
 
 
-LoggerTextboxFactory = providers.Factory(LoggerTextboxWidget, log.FORMATTER)
+LoggerTextboxFactory = providers.Factory(LoggerTextboxWidget, formatter=log.FORMATTER)

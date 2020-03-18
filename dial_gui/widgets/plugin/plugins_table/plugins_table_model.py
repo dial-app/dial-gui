@@ -4,10 +4,11 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, Optional, Any
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, Signal
+from PySide2.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt
 from dial_gui.utils import application
 
 from dial_core.plugin import PluginManagerSingleton
+from dial_core.utils import log
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QObject
@@ -15,8 +16,6 @@ if TYPE_CHECKING:
 
 
 class PluginsTableModel(QAbstractTableModel):
-    command_message = Signal(str)
-
     class ColumnLabel(IntEnum):
         Active = 0
         Name = 1
@@ -87,9 +86,9 @@ class PluginsTableModel(QAbstractTableModel):
             if index.column() == self.ColumnLabel.Active:
                 plugin.active = bool(value)
 
-                self.command_message.emit(
-                    f'> Plugin "{plugin.name}" has been '
-                    f"{'activated' if plugin.active else 'deactivated'}"
+                log.get_logger("plugins").info(
+                    f'Plugin "{plugin.name}" has been '
+                    f"{'activated' if plugin.active else 'deactivated'}."
                 )
 
         return True
