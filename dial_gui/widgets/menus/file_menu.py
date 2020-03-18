@@ -41,6 +41,11 @@ class FileMenu(QMenu):
             self.__project_manager.save_project_as
         )
 
+        self._close_project_act = QAction("Close project", self)
+        self._close_project_act.triggered.connect(
+            lambda: self.__project_manager.close_project(self.__project_manager.active)
+        )
+
         self._quit_act = QAction("Quit", self)
         self._quit_act.setShortcut(QKeySequence.Quit)
         self._quit_act.triggered.connect(QApplication.quit)
@@ -50,6 +55,7 @@ class FileMenu(QMenu):
         self.addAction(self._open_project_act)
         self.addAction(self._save_project_act)
         self.addAction(self._save_project_as_act)
+        self.addAction(self._close_project_act)
         self.addSeparator()
         self.addAction(self._quit_act)
 

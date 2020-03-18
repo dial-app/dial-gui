@@ -1,9 +1,14 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+from typing import TYPE_CHECKING
+
 import dependency_injector.providers as providers
 
 from dial_core.project import Project
 from dial_gui.node_editor import GraphicsSceneFactory
+
+if TYPE_CHECKING:
+    from dial_gui.node_editor import GraphicsScene
 
 
 class ProjectGUI(Project):

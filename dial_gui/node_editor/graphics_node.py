@@ -53,7 +53,6 @@ class GraphicsNode(QGraphicsObject):
         parent: "QGraphicsItem" = None,
     ):
         super().__init__(parent)
-        print(self)
 
         # Components
         self._node = node

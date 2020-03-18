@@ -14,7 +14,10 @@ LOGGER = log.get_logger(__name__)
 
 
 class ProjectManagerGUI(QObject, ProjectManager):
+    new_project_created = Signal(ProjectGUI)
+    project_added = Signal(ProjectGUI)
     active_project_changed = Signal(ProjectGUI)
+    project_removed = Signal(ProjectGUI)
 
     def __init__(self, default_project: "ProjectGUI", parent=None):
         QObject.__init__(self, parent)
@@ -27,7 +30,6 @@ class ProjectManagerGUI(QObject, ProjectManager):
         file_path = QFileDialog.getOpenFileName(
             QWidget(), "Open Dial project", "~", "Dial Files (*.dial)"
         )[0]
-
         LOGGER.info("File path selected for opening: %s", file_path)
 
         if file_path:
@@ -36,21 +38,12 @@ class ProjectManagerGUI(QObject, ProjectManager):
             LOGGER.info("Invalid file path. Loading cancelled.")
 
     @Slot()
-    def set_active_project(self, index: int) -> "ProjectGUI":
-        project = super().set_active_project(index)
-
-        self.active_project_changed.emit(project)
-
-        return project
-
-    @Slot()
     def save_project(self):
         try:
             super().save_project()
 
         except ValueError:
             LOGGER.warning("Project doesn't have a file path set!")
-
             self.save_project_as()
 
     @Slot()
@@ -60,14 +53,33 @@ class ProjectManagerGUI(QObject, ProjectManager):
         selected_file_path = QFileDialog.getSaveFileName(
             QWidget(), "Save Dial project", "~", "Dial Files (*.dial)"
         )[0]
-
         LOGGER.info("File path selected for saving: %s", selected_file_path)
 
         if selected_file_path:
             super().save_project_as(selected_file_path)
-
         else:
             LOGGER.info("Invalid file path. Saving cancelled.")
+
+    def _new_project_impl(self) -> "ProjectGUI":
+        new_project = super()._new_project_impl()
+        self.new_project_created.emit(new_project)
+        return new_project
+
+    def _add_project_impl(self, project: "ProjectGUI") -> "ProjectGUI":
+        super()._add_project_impl(project)
+
+        self.project_added.emit(project)
+        return project
+
+    def _set_active_project_impl(self, index: int) -> "ProjectGUI":
+        active_project = super()._set_active_project_impl(index)
+        self.active_project_changed.emit(active_project)
+        return active_project
+
+    def _remove_project_impl(self, project: "ProjectGUI") -> "ProjectGUI":
+        super()._remove_project_impl(project)
+        self.project_removed.emit(project)
+        return project
 
 
 ProjectManagerGUISingleton = providers.Singleton(

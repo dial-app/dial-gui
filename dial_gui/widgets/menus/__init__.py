@@ -7,6 +7,7 @@ from .file_menu import FileMenu, FileMenuFactory
 from .nodes_menu import NodesMenu, NodesMenuFactory
 from .plugins_menu import PluginsMenu, PluginsMenuFactory
 from .windows_menu import WindowsMenu, WindowsMenuFactory
+from .projects_menu import ProjectsMenu, ProjectsMenuFactory
 
 __all__ = [
     "FileMenu",
@@ -17,4 +18,6 @@ __all__ = [
     "PluginsMenuFactory",
     "WindowsMenu",
     "WindowsMenuFactory",
+    "ProjectsMenu",
+    "ProjectsMenuFactory",
 ]
