@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dial-gui"
-version = "0.6a0"
+version = "0.6a1"
 description = "A node-based GUI for Deep Learning tasks"
 authors = ["David Afonso <davafons@gmail.com>"]
 

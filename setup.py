@@ -34,8 +34,7 @@ setup(
     packages=[
         'dial_gui', 'dial_gui.event_filters', 'dial_gui.main_window',
         'dial_gui.node_editor', 'dial_gui.project', 'dial_gui.utils',
-        'dial_gui.widgets', 'dial_gui.widgets.abstract_tree_model',
-        'dial_gui.widgets.log', 'dial_gui.widgets.menus',
+        'dial_gui.widgets', 'dial_gui.widgets.log', 'dial_gui.widgets.menus',
         'dial_gui.widgets.plugin', 'dial_gui.widgets.plugin.plugins_table'
     ],
     package_dir={"": "."},
