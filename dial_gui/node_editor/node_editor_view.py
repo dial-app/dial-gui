@@ -17,6 +17,8 @@ from dial_gui.node_editor import (
 )
 from dial_gui.widgets.menus import NodesMenuFactory
 
+from .node_editor_view_menu import NodeEditorViewMenuFactory
+
 if TYPE_CHECKING:
     from PySide2.QtGui import QContextMenuEvent
     from PySide2.QtCore import QObject
@@ -26,10 +28,6 @@ if TYPE_CHECKING:
 
 
 class NodeEditorView(QGraphicsView):
-    connection_created = Signal(QGraphicsItem)
-    connection_removed = Signal(QGraphicsItem)
-    graphics_node_added = Signal(GraphicsNode)
-
     def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
         super().__init__(parent)
 
@@ -111,21 +109,26 @@ class NodeEditorView(QGraphicsView):
         event.ignore()
 
     def contextMenuEvent(self, event: "QContextMenuEvent"):
-        # TODO: Show different menu if objects are selected
+        item = self.__item_clicked_on(event)
+        context_menu = None
 
-        context_menu = NodesMenuFactory(parent=self)
-        context_menu.node_created.connect(self.__create_graphics_node_from)
+        if self.scene().selectedItems():
+            context_menu = NodeEditorViewMenuFactory(node_editor_view=self, parent=self)
 
-        context_menu.popup(event.globalPos())
+        if item is None:
+            context_menu = NodesMenuFactory(parent=self)
+            context_menu.node_created.connect(self.__create_graphics_node_from)
+
+        if context_menu:
+            context_menu.popup(event.globalPos())
 
     def __create_graphics_node_from(self, node: "Node") -> "GraphicsNode":
         graphics_node = GraphicsNodeFactory(node)
 
         global_pos = self.mapFromGlobal(QCursor.pos())
         graphics_node.setPos(self.mapToScene(global_pos))
-        print("Graphics node added to view")
 
-        self.graphics_node_added.emit(graphics_node)
+        self.scene().addItem(graphics_node)
 
         return graphics_node
 
@@ -210,8 +213,7 @@ class NodeEditorView(QGraphicsView):
     def __create_new_connection(self) -> "GraphicsConnection":
         """Create a new connection on the scene."""
         connection = GraphicsConnectionFactory()
-
-        self.connection_created.emit(connection)
+        self.scene().addItem(connection)
 
         return connection
 
@@ -219,8 +221,7 @@ class NodeEditorView(QGraphicsView):
         """Removes the GraphicsConnection item from the scene."""
         connection.start_graphics_port = None
         connection.end_graphics_port = None
-
-        self.connection_removed.emit(connection)
+        self.scene().removeItem(connection)
 
         return connection
 

@@ -44,15 +44,4 @@ class NodeEditorWindow(QWidget):
 
     def __active_project_changed(self, project: "ProjectGUI"):
         self.__node_editor_view.disconnect(self.__graphics_scene)
-
         self.__node_editor_view.setScene(project.graphics_scene)
-
-        self.__node_editor_view.graphics_node_added.connect(
-            self.__graphics_scene.add_graphics_node
-        )
-        self.__node_editor_view.connection_created.connect(
-            self.__graphics_scene.add_graphics_connection
-        )
-        self.__node_editor_view.connection_removed.connect(
-            self.__graphics_scene.remove_graphics_connection
-        )

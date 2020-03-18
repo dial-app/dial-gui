@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List, Tuple
 import dependency_injector.providers as providers
 from PySide2.QtCore import QLine, QRect
 from PySide2.QtGui import QColor, QPen
-from PySide2.QtWidgets import QGraphicsScene
+from PySide2.QtWidgets import QGraphicsScene, QGraphicsItem
 
 from dial_core.node_editor import SceneFactory
 
@@ -55,7 +55,6 @@ class GraphicsScene(QGraphicsScene):
         # Populate the graphics scene
         for node in self.__scene:
             graphics_node = self.__create_graphics_node_from(node)
-
             self.__graphics_nodes.append(graphics_node)
             self.addItem(graphics_node)
 
@@ -64,32 +63,40 @@ class GraphicsScene(QGraphicsScene):
         """Returns the scene attached to this graphics scene."""
         return self.__scene
 
-    def add_node(self, node: "Node") -> "GraphicsNode":
-        graphics_node = self.__create_graphics_node_from(node)
+    def addItem(self, item: "QGraphicsItem"):
+        if isinstance(item, GraphicsNode):
+            self.__add_graphics_node(item)
 
-        return self.add_graphics_node(graphics_node)
+        elif isinstance(item, GraphicsConnection):
+            self.__add_graphics_connection(item)
 
-    def add_graphics_node(self, graphics_node: "GraphicsNode") -> "GraphicsNode":
+        super().addItem(item)
+
+    def removeItem(self, item: "QGraphicsItem"):
+        if isinstance(item, GraphicsNode):
+            self.__remove_graphics_node(item)
+
+        elif isinstance(item, GraphicsConnection):
+            self.__remove_graphics_connection(item)
+
+        super().removeItem(item)
+
+    def __add_graphics_node(self, graphics_node: "GraphicsNode"):
         self.__scene.add_node(graphics_node._node)
-        print("Adding graphics node to scene")
-
         self.__graphics_nodes.append(graphics_node)
-        self.addItem(graphics_node)
 
-        return graphics_node
-
-    def add_graphics_connection(
-        self, graphics_connection: "GraphicsConnection"
-    ) -> "GraphicsConnection":
+    def __add_graphics_connection(self, graphics_connection: "GraphicsConnection"):
         self.__graphics_connections.append(graphics_connection)
-        self.addItem(graphics_connection)
 
-        return graphics_connection
+    def __remove_graphics_node(self, graphics_node: "GraphicsNode"):
+        try:
+            self.__graphics_nodes.remove(graphics_node)
+        except ValueError:
+            pass
 
-    def remove_graphics_connection(self, graphics_connection: "GraphicsConnection"):
+    def __remove_graphics_connection(self, graphics_connection: "GraphicsConnection"):
         try:
             self.__graphics_connections.remove(graphics_connection)
-            self.removeItem(graphics_connection)
         except ValueError:
             pass
 
