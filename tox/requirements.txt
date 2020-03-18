@@ -1,5 +1,4 @@
-dial-core>=0.7a0
-toml>=0.10.0
+dial-core>=0.9a0
 tensorflow>=2.0.0a0
 tensorboard>=2.0.1
 Pillow>=6.2.1

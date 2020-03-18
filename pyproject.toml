@@ -13,9 +13,8 @@ homepage = "https://github.com/dial-app/dial-gui"
 
 [tool.poetry.dependencies]
 python = ">=3.6, <3.8"
-toml = "^0.10.0"
-
 dial-core = "^0.9a0"
+
 tensorflow = "2.0.0b1"
 PySide2 = "^5.12.6"
 qimage2ndarray = "^1.8.3"
@@ -40,6 +39,10 @@ dial = "python -m dial_gui -d"
 lint = "pre-commit run --all"
 tests = "pytest --cov=dial_gui/ --cov-report term-missing:skip-covered"
 doc-coverage = "docstr-coverage -fi dial_core"
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
 
 [build-system]
 requires = ["poetry>=0.12", "setuptools>=35.0.2", "wheel>=0.29.0"]

@@ -2,15 +2,13 @@
 
 import os
 
-import toml
 from PySide2.QtCore import QStandardPaths
-
-PYPROJECT = toml.load("pyproject.toml")
+import pkg_resources
 
 
 def version() -> str:
     """Returns the current version of the application."""
-    return PYPROJECT["tool"]["poetry"]["version"]
+    return pkg_resources.require("dial-gui")[0].version
 
 
 def config_directory() -> str:
