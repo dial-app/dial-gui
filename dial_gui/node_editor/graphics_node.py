@@ -68,7 +68,6 @@ class GraphicsNode(QGraphicsObject):
         )
         # Proxy
         self._proxy_widget = self.ProxyWidget(parent=self)
-
         self._proxy_widget.setWidget(
             self._node.inner_widget if self._node.inner_widget else QWidget()
         )
@@ -147,7 +146,7 @@ class GraphicsNode(QGraphicsObject):
         show_here_button.setMinimumSize(200, 100)
 
         # Replace the node widget with the button
-        self.__set_inner_wdiget(show_here_button)
+        self.__set_inner_widget(show_here_button)
 
         # Create a new dialog for displaying the node widget
         dialog = QDialog()
@@ -173,7 +172,7 @@ class GraphicsNode(QGraphicsObject):
         dialog.finished.connect(place_widget_back_in_node)
         show_here_button.clicked.connect(place_widget_back_in_node)
 
-    def __set_inner_wdiget(self, widget: "QWidget"):
+    def __set_inner_widget(self, widget: "QWidget"):
         """Sets a new widget inside the node."""
         self.prepareGeometryChange()
 

@@ -3,14 +3,22 @@
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from PySide2.QtCore import Qt, Signal
-from PySide2.QtGui import QPainter
+from PySide2.QtGui import QCursor, QPainter
 from PySide2.QtWidgets import QGraphicsItem, QGraphicsView
 
+from dial_core.node_editor import Node
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
-from dial_gui.node_editor import GraphicsConnectionFactory, GraphicsPort
+from dial_gui.node_editor import (
+    GraphicsConnectionFactory,
+    GraphicsNode,
+    GraphicsNodeFactory,
+    GraphicsPort,
+)
+from dial_gui.widgets.menus import NodesMenuFactory
 
 if TYPE_CHECKING:
+    from PySide2.QtGui import QContextMenuEvent
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
     from PySide2.QtWidgets import QTabWidget, QWidget
@@ -20,6 +28,7 @@ if TYPE_CHECKING:
 class NodeEditorView(QGraphicsView):
     connection_created = Signal(QGraphicsItem)
     connection_removed = Signal(QGraphicsItem)
+    graphics_node_added = Signal(GraphicsNode)
 
     def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
         super().__init__(parent)
@@ -100,6 +109,25 @@ class NodeEditorView(QGraphicsView):
     def wheelEvent(self, event: "QWheelEvent"):
         # TODO: Explain why
         event.ignore()
+
+    def contextMenuEvent(self, event: "QContextMenuEvent"):
+        # TODO: Show different menu if objects are selected
+
+        context_menu = NodesMenuFactory(parent=self)
+        context_menu.node_created.connect(self.__create_graphics_node_from)
+
+        context_menu.popup(event.globalPos())
+
+    def __create_graphics_node_from(self, node: "Node") -> "GraphicsNode":
+        graphics_node = GraphicsNodeFactory(node)
+
+        global_pos = self.mapFromGlobal(QCursor.pos())
+        graphics_node.setPos(self.mapToScene(global_pos))
+        print("Graphics node added to view")
+
+        self.graphics_node_added.emit(graphics_node)
+
+        return graphics_node
 
     def __start_dragging_connection(self, event: "QMouseEvent"):
         """Starts creating a new connection by dragging the mouse.

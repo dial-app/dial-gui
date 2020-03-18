@@ -1,15 +1,13 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 import math
 from typing import TYPE_CHECKING, List, Tuple
 
+import dependency_injector.providers as providers
 from PySide2.QtCore import QLine, QRect
 from PySide2.QtGui import QColor, QPen
 from PySide2.QtWidgets import QGraphicsScene
 
-from dial_core.utils.log import DEBUG, log_on_end
 from dial_core.node_editor import SceneFactory
 
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
@@ -48,32 +46,33 @@ class GraphicsScene(QGraphicsScene):
         self._pen_dark = QPen(self._color_dark)
         self._pen_dark.setWidth(2)
 
-        # Populate the graphics scene
-        for node in self.__scene:
-            self.add_graphics_node(self.__create_graphics_node_from(node))
-
-        # UI
         self.setBackgroundBrush(self._color_background)
 
         self.setSceneRect(
             -self.width // 2, -self.height // 2, self.width, self.height,
         )
 
+        # Populate the graphics scene
+        for node in self.__scene:
+            graphics_node = self.__create_graphics_node_from(node)
+
+            self.__graphics_nodes.append(graphics_node)
+            self.addItem(graphics_node)
+
     @property
     def scene(self):
         """Returns the scene attached to this graphics scene."""
         return self.__scene
 
-    @log_on_end(DEBUG, "{node} added as a GraphicNode.")
-    def add_node_to_graphics(self, node: "Node") -> "GraphicsNode":
-        """Add a new Node to the GraphicsScene, making it visible."""
-        self.__scene.add_node(node)
+    def add_node(self, node: "Node") -> "GraphicsNode":
+        graphics_node = self.__create_graphics_node_from(node)
 
-        graphics_node = self.add_graphics_node(self.__create_graphics_node_from(node))
-
-        return graphics_node
+        return self.add_graphics_node(graphics_node)
 
     def add_graphics_node(self, graphics_node: "GraphicsNode") -> "GraphicsNode":
+        self.__scene.add_node(graphics_node._node)
+        print("Adding graphics node to scene")
+
         self.__graphics_nodes.append(graphics_node)
         self.addItem(graphics_node)
 
@@ -133,14 +132,15 @@ class GraphicsScene(QGraphicsScene):
                 graphics_node.outputs.values()
             ):
                 for graphics_connection in graphics_port.graphics_connections:
-                    # TODO: Solve items duplication
+                    # TODO: Solve items duplication with this approach
                     # self.__graphics_connections.append(graphics_connection)
                     self.addItem(graphics_connection)
 
         self.update()
 
     def __reduce__(self):
-        return (GraphicsScene, (self.__scene,), self.__getstate__())
+        # Initialize with an empty scene (Because the real scene will be restored later)
+        return (GraphicsScene, ([],), self.__getstate__())
 
     def __calculate_grid_boundaries(self, rect: "QRectF") -> "QRect":
         """Calculates the grid boundaries from the rect."""

@@ -4,12 +4,10 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from .context_menu import DialContextMenu
 from .node_editor_view import NodeEditorView
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QTabWidget
-    from PySide2.QtGui import QContextMenuEvent
     from dial_core.project import ProjectManager
     from dial_gui.project import ProjectGUI
 
@@ -44,20 +42,14 @@ class NodeEditorWindow(QWidget):
         self.show()
         self.__active_project_changed(self.__project_manager.active)
 
-    def contextMenuEvent(self, event: "QContextMenuEvent"):
-        menubar = DialContextMenu(
-            parent=self,
-            graphics_scene=self.__graphics_scene,
-            project_manager=self.__project_manager,
-            node_editor_view=self.__node_editor_view,
-        )
-        menubar.popup(event.globalPos())
-
     def __active_project_changed(self, project: "ProjectGUI"):
         self.__node_editor_view.disconnect(self.__graphics_scene)
 
         self.__node_editor_view.setScene(project.graphics_scene)
 
+        self.__node_editor_view.graphics_node_added.connect(
+            self.__graphics_scene.add_graphics_node
+        )
         self.__node_editor_view.connection_created.connect(
             self.__graphics_scene.add_graphics_connection
         )
