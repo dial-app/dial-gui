@@ -108,6 +108,17 @@ class NodeEditorView(QGraphicsView):
         # TODO: Explain why
         event.ignore()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            # Remove selected elements
+            for selected_item in self.scene().selectedItems():
+                self.scene().removeItem(selected_item)
+
+            self.scene().update()
+            return
+
+        super().keyPressEvent(event)
+
     def contextMenuEvent(self, event: "QContextMenuEvent"):
         item = self.__item_clicked_on(event)
         print(self.scene().selectedItems())

@@ -1,10 +1,11 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 from enum import IntEnum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt
+from PySide2.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, Signal
+from dial_gui.utils import application
 
 from dial_core.plugin import PluginManagerSingleton
 
@@ -14,10 +15,12 @@ if TYPE_CHECKING:
 
 
 class PluginsTableModel(QAbstractTableModel):
+    command_message = Signal(str)
+
     class ColumnLabel(IntEnum):
         Active = 0
         Name = 1
-        Description = 2
+        Summary = 2
         Version = 3
 
     def __init__(self, plugin_manager: "PluginManager", parent: "QObject" = None):
@@ -72,6 +75,25 @@ class PluginsTableModel(QAbstractTableModel):
 
         return None
 
+    def setData(
+        self, index: "QModelIndex", value: Any, role: int = Qt.EditRole
+    ) -> bool:
+        if not index.isValid():
+            return False
+
+        plugin: "Plugin" = index.internalPointer()
+
+        if role == Qt.CheckStateRole:
+            if index.column() == self.ColumnLabel.Active:
+                plugin.active = bool(value)
+
+                self.command_message.emit(
+                    f'> Plugin "{plugin.name}" has been '
+                    f"{'activated' if plugin.active else 'deactivated'}"
+                )
+
+        return True
+
     def __data_display_role(self, index: "QModelIndex") -> Optional["str"]:
         if not index.isValid():
             return None
@@ -81,8 +103,8 @@ class PluginsTableModel(QAbstractTableModel):
         if index.column() == self.ColumnLabel.Name:
             return plugin.name
 
-        if index.column() == self.ColumnLabel.Description:
-            return plugin.description
+        if index.column() == self.ColumnLabel.Summary:
+            return plugin.summary
 
         if index.column() == self.ColumnLabel.Version:
             return plugin.version
@@ -120,5 +142,8 @@ class PluginsTableModel(QAbstractTableModel):
 
 
 PluginsTableModelFactory = providers.Factory(
-    PluginsTableModel, plugin_manager=PluginManagerSingleton
+    PluginsTableModel,
+    plugin_manager=PluginManagerSingleton(
+        installed_plugins_dict=application.installed_plugins_file_content()
+    ),
 )

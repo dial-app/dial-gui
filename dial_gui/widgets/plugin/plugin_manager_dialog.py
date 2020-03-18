@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
 from PySide2.QtCore import QSize
-from PySide2.QtWidgets import QDialog, QHBoxLayout
+from PySide2.QtWidgets import QDialog, QVBoxLayout, QGroupBox
+
+from dial_gui.widgets import log
 
 from .plugins_table import PluginsTableWidgetFactory
 
@@ -21,10 +23,17 @@ class PluginManagerDialog(QDialog):
         self.__plugins_table_widget = plugins_table_widget
         self.__plugins_table_widget.setParent(self)
 
-        self.__main_layout = QHBoxLayout()
-        # self.__main_layout.setContentsMargins(0, 0, 0, 0)
+        self.__actions_output_textarea = log.LoggerTextboxFactory(parent=self)
+
+        self.__main_layout = QVBoxLayout()
+
+        actions_output_group = QGroupBox("Commands output")
+        actions_output_layout = QVBoxLayout()
+        actions_output_layout.addWidget(self.__actions_output_textarea)
+        actions_output_group.setLayout(actions_output_layout)
 
         self.__main_layout.addWidget(self.__plugins_table_widget)
+        self.__main_layout.addWidget(actions_output_group)
 
         self.setLayout(self.__main_layout)
 
