@@ -45,8 +45,12 @@ def plugins_install_directory() -> str:
     return plugins_install_directory
 
 
+def installed_plugins_file() -> str:
+    return plugins_directory() + os.path.sep + "plugins.json"
+
+
 def installed_plugins_file_content() -> Optional[dict]:
-    with open(plugins_directory() + os.path.sep + "plugins.json") as plugins_file:
+    with open(installed_plugins_file()) as plugins_file:
         return json.load(plugins_file)
 
     return None

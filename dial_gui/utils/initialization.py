@@ -6,7 +6,9 @@ Functions to check that python versions, libraries... used by the program are co
 
 import os
 import signal
+import pkg_resources
 import sys
+import json
 from typing import TYPE_CHECKING
 
 import dial_core
@@ -58,28 +60,17 @@ def __gui_initialization(args: "argparse.Namespace"):
 
     app = QApplication()
     app.setApplicationName("dial")
+    app.aboutToQuit.connect(exit_application)
 
     __plugins_initialization(args)
-    # Load all plugins
-
-    # plugins_manager = PluginManagerSingleton()
-
-    # for plugin_name in next(os.walk(application.plugins_directory()))[1]:
-    #     try:
-    #         plugin_path = os.path.join(application.plugins_directory(), plugin_name)
-    #         plugin = plugins_manager.install_plugin(plugin_path)
-    #         plugin.load()
-
-    #         LOGGER.info('Plugin "%s" loaded.', plugin.name)
-
-    #     except FileNotFoundError as err:
-    #         LOGGER.warning("Couldn't load plugin in ", plugins_manager)
-    #         LOGGER.exception(err)
 
 
 def __plugins_initialization(args: "argparse.Namespace"):
     plugins_install_abs_path = os.path.abspath(application.plugins_install_directory())
+
     sys.path.append(plugins_install_abs_path)
+    pkg_resources.working_set.add_entry(plugins_install_abs_path)
+
     LOGGER.info("%s added to sys.path", plugins_install_abs_path)
 
     plugins_manager = PluginManagerSingleton()
@@ -92,3 +83,18 @@ def __plugins_initialization(args: "argparse.Namespace"):
                 plugin.load()
         except ModuleNotFoundError as err:
             LOGGER.exception(err)
+
+
+def exit_application():
+    # Save plugin manager current state
+    plugins_manager = PluginManagerSingleton()
+
+    with open(application.installed_plugins_file(), "w") as plugins_file:
+        json.dump(plugins_manager.to_dict(), plugins_file, indent=2)
+
+    # Check if current projects must be saved before closing
+
+    # Close the PySide2 application
+    from PySide2.QtWidgets import QApplication
+
+    QApplication.quit()
