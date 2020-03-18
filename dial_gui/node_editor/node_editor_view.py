@@ -2,9 +2,9 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from PySide2.QtCore import Qt, Signal
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsItem, QGraphicsView
+from PySide2.QtWidgets import QGraphicsView
 
 from dial_core.node_editor import Node
 from dial_core.utils import log
@@ -110,17 +110,18 @@ class NodeEditorView(QGraphicsView):
 
     def contextMenuEvent(self, event: "QContextMenuEvent"):
         item = self.__item_clicked_on(event)
-        context_menu = None
+        print(self.scene().selectedItems())
 
         if self.scene().selectedItems():
             context_menu = NodeEditorViewMenuFactory(node_editor_view=self, parent=self)
+            context_menu.popup(event.globalPos())
+            return
 
         if item is None:
             context_menu = NodesMenuFactory(parent=self)
             context_menu.node_created.connect(self.__create_graphics_node_from)
-
-        if context_menu:
             context_menu.popup(event.globalPos())
+            return
 
     def __create_graphics_node_from(self, node: "Node") -> "GraphicsNode":
         graphics_node = GraphicsNodeFactory(node)
@@ -177,7 +178,7 @@ class NodeEditorView(QGraphicsView):
         ):
             self.__new_connection.end_graphics_port = item
         else:
-            self.__remove_connection(self.__new_connection)
+            self.scene().removeItem(self.__new_connection)
 
         # Reset the connection item
         self.__new_connection = None
@@ -214,14 +215,6 @@ class NodeEditorView(QGraphicsView):
         """Create a new connection on the scene."""
         connection = GraphicsConnectionFactory()
         self.scene().addItem(connection)
-
-        return connection
-
-    def __remove_new_connection(self, connection: "GraphicsConnection"):
-        """Removes the GraphicsConnection item from the scene."""
-        connection.start_graphics_port = None
-        connection.end_graphics_port = None
-        self.scene().removeItem(connection)
 
         return connection
 

@@ -8,6 +8,7 @@ from PySide2.QtWidgets import QGraphicsItem, QGraphicsScene
 from dial_core.node_editor import SceneFactory
 
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
+from .graphics_connection import GraphicsConnection
 from .graphics_scene_painter import GraphicsScenePainterFactory
 
 if TYPE_CHECKING:
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
     from PySide2.QtCore import QRectF
     from dial_core.node_editor import Node, Scene
     from PySide2.QtGui import QPainter
-    from .graphics_connection import GraphicsConnection  # noqa: F401
 
 
 class GraphicsScene(QGraphicsScene):
@@ -79,6 +79,8 @@ class GraphicsScene(QGraphicsScene):
 
     def __remove_graphics_connection(self, graphics_connection: "GraphicsConnection"):
         try:
+            graphics_connection.start_graphics_port = None
+            graphics_connection.end_graphics_port = None
             self.__graphics_connections.remove(graphics_connection)
         except ValueError:
             pass

@@ -71,7 +71,7 @@ class GraphicsPort(QGraphicsItem):
         return self._port.port_type
 
     def is_compatible_with(self, graphics_port: "GraphicsPort"):
-        return self.port_type == graphics_port.port_type
+        return self._port.is_compatible_with(graphics_port._port)
 
     @property
     def graphics_node(self) -> Optional["GraphicsNode"]:
