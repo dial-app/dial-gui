@@ -178,6 +178,8 @@ class NodeEditorView(QGraphicsView):
         ):
             self.__new_connection.end_graphics_port = item
         else:
+            self.__new_connection.start_graphics_port = None
+            self.__new_connection.end_graphics_port = None
             self.scene().removeItem(self.__new_connection)
 
         # Reset the connection item
