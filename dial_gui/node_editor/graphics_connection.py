@@ -205,6 +205,18 @@ class GraphicsConnection(QGraphicsPathItem):
         path_stroker.setWidth(self.width + self.clickable_margin)
         return path_stroker.createStroke(self.path())
 
+    def paint(
+        self,
+        painter: "QPainter",
+        option: "QStyleOptionGraphicsItem",
+        widget: "QWidget" = None,
+    ):
+        """Paints the connection between the start and end points."""
+
+        self._update_path()
+
+        self._graphics_connection_painter.paint(painter, option, widget)
+
     def __getstate__(self):
         return {
             "start": self.__start,
@@ -221,18 +233,6 @@ class GraphicsConnection(QGraphicsPathItem):
 
     def __reduce__(self):
         return (GraphicsConnection, (self._painter_factory,), self.__getstate__())
-
-    def paint(
-        self,
-        painter: "QPainter",
-        option: "QStyleOptionGraphicsItem",
-        widget: "QWidget" = None,
-    ):
-        """Paints the connection between the start and end points."""
-
-        self._update_path()
-
-        self._graphics_connection_painter.paint(painter, option, widget)
 
     def __eq__(self, other) -> bool:
         return (

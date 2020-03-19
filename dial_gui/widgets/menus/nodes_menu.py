@@ -21,6 +21,8 @@ class NodesMenu(QMenu):
     ):
         super().__init__("&Nodes", parent)
 
+        self.setTearOffEnabled(True)
+
         for node_name, factory in node_registry.nodes.items():
             action = QAction(node_name, self)
 

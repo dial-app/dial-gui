@@ -18,13 +18,13 @@ from dial_gui.node_editor import (
 from dial_gui.widgets.menus import NodesMenuFactory
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
+from dial_gui.node_editor import GraphicsConnection
 
 if TYPE_CHECKING:
     from PySide2.QtGui import QContextMenuEvent
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
     from PySide2.QtWidgets import QTabWidget, QWidget
-    from dial_gui.node_editor import GraphicsConnection
 
 
 class NodeEditorView(QGraphicsView):
@@ -153,6 +153,24 @@ class NodeEditorView(QGraphicsView):
             event: Mouse event.
         """
         item: "GraphicsPort" = self.__item_clicked_on(event)
+
+        if isinstance(item, GraphicsConnection):
+            distance_to_start = (
+                item.start_graphics_port.pos() - self.mapToScene(event.pos())
+            ).manhattanLength()
+            distance_to_end = (
+                item.end_graphics_port.pos() - self.mapToScene(event.pos())
+            ).manhattanLength()
+
+            if distance_to_start < distance_to_end:
+                end_graphics_port = item.end_graphics_port
+                item.end = self.mapToScene(event.pos())
+                item.start_graphics_port = end_graphics_port
+            else:
+                item.end = self.mapToScene(event.pos())
+
+            self.__new_connection = item
+            return
 
         if not isinstance(item, GraphicsPort):
             super().mousePressEvent(event)
