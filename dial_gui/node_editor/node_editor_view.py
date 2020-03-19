@@ -14,6 +14,7 @@ from dial_gui.node_editor import (
     GraphicsNode,
     GraphicsNodeFactory,
     GraphicsPort,
+    GraphicsPortPainter,
 )
 from dial_gui.widgets.menus import NodesMenuFactory
 
@@ -169,22 +170,26 @@ class NodeEditorView(QGraphicsView):
             else:
                 item.end = self.mapToScene(event.pos())
 
+            GraphicsPortPainter.drawing_state = GraphicsPortPainter.DrawingState.Target
+            GraphicsPortPainter.target_port_type = item.start_graphics_port.port_type
+            self.scene().update()
+
             self.__new_connection = item
             return
 
-        if not isinstance(item, GraphicsPort):
-            super().mousePressEvent(event)
+        elif isinstance(item, GraphicsPort):
+            log.get_logger(__name__).debug("Start dragging")
+
+            self.__new_connection = self.__create_new_connection()
+            self.__new_connection.start_graphics_port = item
+            self.__new_connection.end = self.mapToScene(event.pos())
+
+            GraphicsPortPainter.drawing_state = GraphicsPortPainter.DrawingState.Target
+            GraphicsPortPainter.target_port_type = item.port_type
+            self.scene().update()
             return
 
-        log.get_logger(__name__).debug("Start dragging")
-
-        self.__new_connection = self.__create_new_connection()
-        self.__new_connection.start_graphics_port = item
-        self.__new_connection.end = self.mapToScene(event.pos())
-
-        # Its important to don't pass the event to parent classes to avoid selecting
-        # items when we start dragging.
-        # DON'T include `super().mousePressEvent(event)` here
+        super().mousePressEvent(event)
 
     def __stop_dragging_connection(self, event: "QMouseEvent"):
         """Stops dragging the connection.
@@ -213,6 +218,11 @@ class NodeEditorView(QGraphicsView):
 
         # Reset the connection item
         self.__new_connection = None
+
+        # Reset the port painter
+        GraphicsPortPainter.drawing_state = GraphicsPortPainter.DrawingState.Normal
+        GraphicsPortPainter.target_port_type = None
+        self.scene().update()
 
         super().mouseReleaseEvent(event)
 

@@ -20,9 +20,16 @@ class GraphicsPortPainter:
         painting a GraphicsPort object.
     """
 
+    class DrawingState(Enum):
+        Normal = 0
+        Target = 1
+
     class PortNamePosition(Enum):
         Left = 0
         Right = 1
+
+    drawing_state = DrawingState.Normal
+    target_port_type = None
 
     def __init__(
         self, graphics_port: "GraphicsPort", port_name_position: "PortNamePosition"
@@ -78,6 +85,14 @@ class GraphicsPortPainter:
         option: "QStyleOptionGraphicsItem",
         widget: "QWidget" = None,
     ):
+        if (
+            GraphicsPortPainter.drawing_state == GraphicsPortPainter.DrawingState.Target
+            and self.__graphics_port.port_type == GraphicsPortPainter.target_port_type
+        ):
+            painter.setPen(self.__dashed_outline_pen)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawEllipse(self.__graphics_port.boundingRect())
+
         painter.setPen(self.__outline_pen)
         painter.setBrush(self.__background_brush)
         painter.drawEllipse(self.paint_area())

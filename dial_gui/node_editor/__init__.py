@@ -8,6 +8,7 @@ from .graphics_connection_painter import (
 )
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
 from .graphics_port import GraphicsPort
+from .graphics_port_painter import GraphicsPortPainter
 from .graphics_scene import GraphicsScene, GraphicsSceneFactory
 from .node_editor_view import NodeEditorView
 from .node_editor_window import NodeEditorWindow
@@ -23,5 +24,6 @@ __all__ = [
     "NodeEditorWindow",
     "NodeEditorView",
     "GraphicsPort",
+    "GraphicsPortPainter",
     "GraphicsSceneFactory",
 ]
