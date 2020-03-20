@@ -2,14 +2,11 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsView
-
 from dial_core.node_editor import Node
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
 from dial_gui.node_editor import (
+    GraphicsConnection,
     GraphicsConnectionFactory,
     GraphicsNode,
     GraphicsNodeFactory,
@@ -17,9 +14,11 @@ from dial_gui.node_editor import (
     GraphicsPortPainter,
 )
 from dial_gui.widgets.menus import NodesMenuFactory
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QCursor, QPainter
+from PySide2.QtWidgets import QGraphicsView
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
-from dial_gui.node_editor import GraphicsConnection
 
 if TYPE_CHECKING:
     from PySide2.QtGui import QContextMenuEvent
@@ -210,10 +209,19 @@ class NodeEditorView(QGraphicsView):
         if isinstance(item, GraphicsPort) and item.is_compatible_with(
             self.__new_connection.start_graphics_port  # type: ignore
         ):
+            start_graphics_port = self.__new_connection.start_graphics_port
+            if not start_graphics_port._port.allows_multiple_connections:
+                for connection in start_graphics_port.graphics_connections:
+                    self.scene().removeItem(connection)
+
+            if not item._port.allows_multiple_connections:
+                for connection in item.graphics_connections:
+                    self.scene().removeItem(connection)
+
+            self.__new_connection.start_graphics_port = start_graphics_port
             self.__new_connection.end_graphics_port = item
+            self.scene().addItem(self.__new_connection)
         else:
-            self.__new_connection.start_graphics_port = None
-            self.__new_connection.end_graphics_port = None
             self.scene().removeItem(self.__new_connection)
 
         # Reset the connection item

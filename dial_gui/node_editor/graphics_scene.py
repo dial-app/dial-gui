@@ -3,19 +3,20 @@
 from typing import TYPE_CHECKING, List
 
 import dependency_injector.providers as providers
+from dial_core.node_editor import Node, Scene, SceneFactory
+from dial_core.utils import log
 from PySide2.QtWidgets import QGraphicsItem, QGraphicsScene
 
-from dial_core.node_editor import SceneFactory
-
+from .graphics_connection import GraphicsConnection
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
 from .graphics_scene_painter import GraphicsScenePainterFactory
-from dial_core.node_editor import Scene
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QObject
     from PySide2.QtCore import QRectF
-    from dial_core.node_editor import Node
     from PySide2.QtGui import QPainter
+
+LOGGER = log.get_logger(__name__)
 
 
 class GraphicsScene(QGraphicsScene):
@@ -48,12 +49,18 @@ class GraphicsScene(QGraphicsScene):
     def addItem(self, item: "QGraphicsItem"):
         if isinstance(item, GraphicsNode):
             self.__add_graphics_node(item)
+            return
 
         super().addItem(item)
 
     def removeItem(self, item: "QGraphicsItem"):
         if isinstance(item, GraphicsNode):
             self.__remove_graphics_node(item)
+            return
+
+        if isinstance(item, GraphicsConnection):
+            self.__remove_graphics_connection(item)
+            return
 
         super().removeItem(item)
 
@@ -67,20 +74,35 @@ class GraphicsScene(QGraphicsScene):
         self.__scene.add_node(graphics_node._node)
         self.__graphics_nodes.append(graphics_node)
 
+        super().addItem(graphics_node)
+
     def __remove_graphics_node(self, graphics_node: "GraphicsNode"):
         try:
             self.__graphics_nodes.remove(graphics_node)
             self.__scene.remove_node(graphics_node._node)
+
+            for port in list(graphics_node.inputs.values()) + list(
+                graphics_node.outputs.values()
+            ):
+                for connection in port.graphics_connections:
+                    self.__remove_graphics_connection(connection)
+
+            super().removeItem(graphics_node)
+
         except ValueError:
             pass
+
+    def __remove_graphics_connection(self, graphics_connection: "GraphicsConnection"):
+        graphics_connection.start_graphics_port = None
+        graphics_connection.end_graphics_port = None
+        super().removeItem(graphics_connection)
 
     def __create_graphics_node_from(self, node: "Node"):
         return GraphicsNodeFactory(node, graphics_scene=self)
 
     def __getstate__(self):
-        print("Saving nodes:", self.scene)
-        print("Saving graphics nodes:", self.__graphics_nodes)
-        return {"scene": self.scene, "graphics_nodes": self.__graphics_nodes}
+        LOGGER.debug("Saving scene:\n%s", self.__scene)
+        return {"scene": self.__scene, "graphics_nodes": self.__graphics_nodes}
 
     def __setstate__(self, new_state: dict):
         """Composes a GraphicsScene object from a pickled dict."""
@@ -88,6 +110,8 @@ class GraphicsScene(QGraphicsScene):
 
         self.__scene = new_state["scene"]
         self.__graphics_nodes = new_state["graphics_nodes"]
+
+        LOGGER.debug("Loading scene:\n%s", self.__scene)
 
         for graphics_node in self.__graphics_nodes:
             super().addItem(graphics_node)
@@ -102,7 +126,7 @@ class GraphicsScene(QGraphicsScene):
         self.update()
 
     def __reduce__(self):
-        # Initialize with an empty scene (Because the real scene will be restored later)
+        # Return an empty scene (Because the real scene will be restored later)
         return (
             GraphicsScene,
             (Scene(), self._painter_factory,),

@@ -106,10 +106,6 @@ class GraphicsNode(QGraphicsObject):
     def outputs(self):
         return self._output_graphics_ports
 
-    @property
-    def graphics_scene(self):
-        return self.__graphics_scene
-
     def boundingRect(self) -> "QRectF":
         """Returns a rect enclosing the node."""
         return self._graphics_node_painter.boundingRect()
