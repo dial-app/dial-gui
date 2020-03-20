@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-
 from dial_core.project import Project
 from dial_gui.node_editor import GraphicsSceneFactory
 

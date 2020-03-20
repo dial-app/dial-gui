@@ -1,13 +1,12 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 from typing import TYPE_CHECKING
 
-from PySide2.QtGui import QKeySequence
-from PySide2.QtWidgets import QAction, QApplication, QMenu
-
+import dependency_injector.providers as providers
 from dial_gui.project import ProjectManagerGUISingleton
+from PySide2.QtCore import Signal
+from PySide2.QtGui import QKeySequence
+from PySide2.QtWidgets import QAction, QMenu
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -17,6 +16,8 @@ if TYPE_CHECKING:
 class FileMenu(QMenu):
     """The class FileMenu provides a configured menu for the basic File operations
     (Open/Close/Save projects, exit program...)."""
+
+    quit = Signal()
 
     def __init__(self, project_manager: "ProjectManager", parent: "QWidget" = None):
         super().__init__("&File", parent)
@@ -34,11 +35,15 @@ class FileMenu(QMenu):
 
         self._save_project_act = QAction("Save project", self)
         self._save_project_act.setShortcut(QKeySequence.Save)
-        self._save_project_act.triggered.connect(self.__project_manager.save_project)
+        self._save_project_act.triggered.connect(
+            lambda: self.__project_manager.save_project(self.__project_manager.active)
+        )
 
         self._save_project_as_act = QAction("Save project as...", self)
         self._save_project_as_act.triggered.connect(
-            self.__project_manager.save_project_as
+            lambda: self.__project_manager.save_project_as(
+                self.__project_manager.active
+            )
         )
 
         self._close_project_act = QAction("Close project", self)
@@ -48,7 +53,7 @@ class FileMenu(QMenu):
 
         self._quit_act = QAction("Quit", self)
         self._quit_act.setShortcut(QKeySequence.Quit)
-        self._quit_act.triggered.connect(QApplication.quit)
+        self._quit_act.triggered.connect(lambda: self.quit.emit())
 
         # Configure menu
         self.addAction(self._new_project_act)

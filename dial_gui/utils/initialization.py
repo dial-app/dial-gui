@@ -4,14 +4,14 @@ Functions to check that python versions, libraries... used by the program are co
 """
 
 
+import json
 import os
 import signal
-import pkg_resources
 import sys
-import json
 from typing import TYPE_CHECKING
 
 import dial_core
+import pkg_resources
 from dial_core.plugin import PluginManagerSingleton
 from dial_core.utils import log
 
@@ -92,9 +92,9 @@ def exit_application():
     with open(application.installed_plugins_file(), "w") as plugins_file:
         json.dump(plugins_manager.to_dict(), plugins_file, indent=2)
 
-    # Check if current projects must be saved before closing
-
     # Close the PySide2 application
     from PySide2.QtWidgets import QApplication
 
     QApplication.quit()
+
+    LOGGER.info("Dial closed.")

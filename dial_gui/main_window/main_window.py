@@ -1,17 +1,15 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 from typing import TYPE_CHECKING
 
-from PySide2.QtCore import QSize
-from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
-
+import dependency_injector.providers as providers
 from dial_core.utils import log
 from dial_gui.node_editor import NodeEditorWindow
+from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.utils import application
 from dial_gui.widgets.log import LoggerDialogFactory
-from dial_gui.project import ProjectManagerGUISingleton
+from PySide2.QtCore import QSize
+from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
 
 from .main_menubar import MainMenuBarFactory
 
@@ -32,6 +30,7 @@ class MainWindow(QMainWindow):
 
         # Initialize widgets
         self.__project_manager = project_manager
+        self.__project_manager.setParent(self)
 
         self.__main_menu_bar = main_menubar
         self.__main_menu_bar.setParent(self)
@@ -45,6 +44,8 @@ class MainWindow(QMainWindow):
 
         # Configure ui
         self.__setup_ui()
+
+        self.__main_menu_bar.quit.connect(self.close)
 
     def __setup_ui(self):
         # Set window title
@@ -68,6 +69,12 @@ class MainWindow(QMainWindow):
         # Remove "delete" button from the tab
         self.__tabs_widget.tabBar().tabButton(0, QTabBar.RightSide).deleteLater()
         self.__tabs_widget.tabBar().setTabButton(0, QTabBar.RightSide, None)
+
+    def closeEvent(self, event):
+        print("Main Menu close")
+        self.__project_manager.closeEvent(event)
+
+        super().closeEvent(event)
 
     def sizeHint(self) -> "QSize":
         """Returns the size of the main window."""

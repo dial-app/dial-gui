@@ -1,17 +1,16 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 from typing import TYPE_CHECKING
 
-from PySide2.QtWidgets import QMenuBar
-
+import dependency_injector.providers as providers
 from dial_gui.widgets.menus import (
     FileMenuFactory,
     PluginsMenuFactory,
-    WindowsMenuFactory,
     ProjectsMenuFactory,
+    WindowsMenuFactory,
 )
+from PySide2.QtCore import Signal
+from PySide2.QtWidgets import QMenuBar
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -22,6 +21,8 @@ class MainMenuBar(QMenuBar):
     """
     Top menu bar for the main window.
     """
+
+    quit = Signal()
 
     def __init__(
         self,
@@ -43,6 +44,8 @@ class MainMenuBar(QMenuBar):
         self.addMenu(self.__plugins_menu)
         self.addMenu(self.__windows_menu)
         self.addMenu(self.__projects_menu)
+
+        self.__file_menu.quit.connect(lambda: self.quit.emit())
 
 
 MainMenuBarFactory = providers.Factory(
