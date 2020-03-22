@@ -107,20 +107,13 @@ class NodeEditorView(QGraphicsView):
     def wheelEvent(self, event: "QWheelEvent"):
         item = self.__item_clicked_on(event)
 
-        # Proxy widgets must ignore the scrollContentsBy function, to avoid scrolling
-        # the viewport up/down
         if isinstance(item, QGraphicsProxyWidget):
-            super_scroll_contents_by = super().scrollContentsBy
-
-            def ignore_scroll_content(x, y=None):
-                pass
-
-            self.scrollContentsBy = ignore_scroll_content
-
+            # Avoid scrolling the view when scrolling an inner widget
+            old_value = super().verticalScrollBar().value()
             super().wheelEvent(event)
+            super().verticalScrollBar().setValue(old_value)
 
-            self.scrollContentsBy = super_scroll_contents_by
-
+            event.accept()
             return
 
         event.ignore()

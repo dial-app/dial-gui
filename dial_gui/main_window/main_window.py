@@ -71,7 +71,6 @@ class MainWindow(QMainWindow):
         self.__tabs_widget.tabBar().setTabButton(0, QTabBar.RightSide, None)
 
     def closeEvent(self, event):
-        print("Main Menu close")
         self.__project_manager.closeEvent(event)
 
         super().closeEvent(event)
