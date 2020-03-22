@@ -16,7 +16,7 @@ from dial_gui.node_editor import (
 from dial_gui.widgets.menus import NodesMenuFactory
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsView
+from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
 
@@ -105,7 +105,24 @@ class NodeEditorView(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event: "QWheelEvent"):
-        # TODO: Explain why
+        item = self.__item_clicked_on(event)
+
+        # Proxy widgets must ignore the scrollContentsBy function, to avoid scrolling
+        # the viewport up/down
+        if isinstance(item, QGraphicsProxyWidget):
+            super_scroll_contents_by = super().scrollContentsBy
+
+            def ignore_scroll_content(x, y=None):
+                pass
+
+            self.scrollContentsBy = ignore_scroll_content
+
+            super().wheelEvent(event)
+
+            self.scrollContentsBy = super_scroll_contents_by
+
+            return
+
         event.ignore()
 
     def keyPressEvent(self, event):
@@ -121,7 +138,10 @@ class NodeEditorView(QGraphicsView):
 
     def contextMenuEvent(self, event: "QContextMenuEvent"):
         item = self.__item_clicked_on(event)
-        print(self.scene().selectedItems())
+
+        if isinstance(item, QGraphicsProxyWidget):
+            super().contextMenuEvent(event)
+            return
 
         if self.scene().selectedItems():
             context_menu = NodeEditorViewMenuFactory(node_editor_view=self, parent=self)
