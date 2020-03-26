@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
+from dial_gui.widgets.nodes_viewport import NodesViewportFactory
+
 from .node_editor_view import NodeEditorView
 
 if TYPE_CHECKING:
@@ -41,6 +43,14 @@ class NodeEditorWindow(QWidget):
 
         self.show()
         self.__active_project_changed(self.__project_manager.active)
+
+        nodes_viewport = NodesViewportFactory(parent=self)
+
+        self.__tabs_widget = tabs_widget
+        self.__tabs_widget.insertTab(0, nodes_viewport, "Nodes Viewport")
+
+        for graphics_node in self.__graphics_scene.graphics_nodes:
+            nodes_viewport.add_graphics_node(graphics_node)
 
     def __active_project_changed(self, project: "ProjectGUI"):
         self.__node_editor_view.disconnect(self.__graphics_scene)

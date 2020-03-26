@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING, Any, Dict
 
 import dependency_injector.providers as providers
-from dial_gui.event_filters import ResizableNodeEventFilter
 from PySide2.QtCore import Qt, Signal
 from PySide2.QtWidgets import (
     QDialog,
@@ -14,6 +13,8 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from dial_gui.event_filters import ResizableNodeEventFilter
 
 from .graphics_node_painter import GraphicsNodePainterFactory
 from .graphics_port import GraphicsPortFactory

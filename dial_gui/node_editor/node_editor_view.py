@@ -2,6 +2,10 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QCursor, QPainter
+from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
+
 from dial_core.node_editor import Node
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
@@ -14,9 +18,6 @@ from dial_gui.node_editor import (
     GraphicsPortPainter,
 )
 from dial_gui.widgets.menus import NodesMenuFactory
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
 
@@ -30,8 +31,6 @@ if TYPE_CHECKING:
 class NodeEditorView(QGraphicsView):
     def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
         super().__init__(parent)
-
-        self.__tabs_widget = tabs_widget
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 

@@ -1,14 +1,12 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 from typing import TYPE_CHECKING
 
+import dependency_injector.providers as providers
 from dial_core.project import Project
-from dial_gui.project import ProjectManagerGUI, ProjectManagerGUISingleton
-
-from PySide2.QtWidgets import QMenu, QActionGroup, QAction
 from dial_core.utils import log
+from dial_gui.project import ProjectManagerGUI, ProjectManagerGUISingleton
+from PySide2.QtWidgets import QAction, QActionGroup, QMenu
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget

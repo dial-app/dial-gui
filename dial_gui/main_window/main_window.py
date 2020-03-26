@@ -3,13 +3,13 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
+from PySide2.QtCore import QSize
+from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
+
 from dial_core.utils import log
 from dial_gui.node_editor import NodeEditorWindow
 from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.utils import application
-from dial_gui.widgets.log import LoggerDialogFactory
-from PySide2.QtCore import QSize
-from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
 
 from .main_menubar import MainMenuBarFactory
 
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
             lambda index: self.__tabs_widget.removeTab(index)
         )
 
-        self.__tabs_widget.addTab(self.__node_editor, "Editor")
+        self.__tabs_widget.insertTab(0, self.__node_editor, "Editor")
 
         # Remove "delete" button from the tab
         self.__tabs_widget.tabBar().tabButton(0, QTabBar.RightSide).deleteLater()

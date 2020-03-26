@@ -3,9 +3,11 @@
 from typing import TYPE_CHECKING, List
 
 import dependency_injector.providers as providers
+from PySide2.QtWidgets import QGraphicsItem, QGraphicsScene
+
+from dial_basic_nodes import DatasetEditorNodeFactory
 from dial_core.node_editor import Node, Scene, SceneFactory
 from dial_core.utils import log
-from PySide2.QtWidgets import QGraphicsItem, QGraphicsScene
 
 from .graphics_connection import GraphicsConnection
 from .graphics_node import GraphicsNode, GraphicsNodeFactory
@@ -29,6 +31,8 @@ class GraphicsScene(QGraphicsScene):
         super().__init__(parent)
 
         self.__scene = scene
+
+        self.__scene.add_node(DatasetEditorNodeFactory())
         self.__graphics_nodes: List["GraphicsNode"] = []
 
         # Painter
@@ -45,6 +49,10 @@ class GraphicsScene(QGraphicsScene):
     def scene(self):
         """Returns the scene attached to this graphics scene."""
         return self.__scene
+
+    @property
+    def graphics_nodes(self):
+        return self.__graphics_nodes
 
     def addItem(self, item: "QGraphicsItem"):
         if isinstance(item, GraphicsNode):
