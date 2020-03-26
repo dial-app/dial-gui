@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
         self.__main_menu_bar.setParent(self)
 
         self.__tabs_widget = QTabWidget(self)
+
         self.__node_editor = NodeEditorWindow(
             tabs_widget=self.__tabs_widget,
             project_manager=self.__project_manager,

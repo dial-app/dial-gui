@@ -33,6 +33,7 @@ class GraphicsScene(QGraphicsScene):
         self.__scene = scene
 
         self.__scene.add_node(DatasetEditorNodeFactory())
+        self.__scene.add_node(DatasetEditorNodeFactory())
         self.__graphics_nodes: List["GraphicsNode"] = []
 
         # Painter

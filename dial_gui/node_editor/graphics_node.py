@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING, Any, Dict
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import Qt, Signal
+from PySide2.QtCore import QEvent, Qt, Signal
 from PySide2.QtWidgets import (
     QDialog,
     QGraphicsItem,
@@ -129,6 +129,8 @@ class GraphicsNode(QGraphicsObject):
         if event.button() == Qt.LeftButton:
             self.__toggle_widget_dialog(event)
 
+        super().mouseDoubleClickEvent(event)
+
     def __toggle_widget_dialog(self, event: "QMouseEvent"):
         """Shows the Node `inner_widget` on a new dialog. The content of the node is
         substituted with a button that hides the dialog and shows the inner_widget back
@@ -142,7 +144,7 @@ class GraphicsNode(QGraphicsObject):
         show_here_button.setMinimumSize(200, 100)
 
         # Replace the node widget with the button
-        self.__set_inner_widget(show_here_button)
+        self.set_inner_widget(show_here_button)
 
         # Create a new dialog for displaying the node widget
         dialog = QDialog()
@@ -159,7 +161,7 @@ class GraphicsNode(QGraphicsObject):
             node_inner_widget.setParent(None)
 
             node_inner_widget.resize(previous_node_size)
-            self.__set_inner_widget(node_inner_widget)
+            self.set_inner_widget(node_inner_widget)
 
             dialog.close()
 
@@ -168,11 +170,12 @@ class GraphicsNode(QGraphicsObject):
         dialog.finished.connect(place_widget_back_in_node)
         show_here_button.clicked.connect(place_widget_back_in_node)
 
-    def __set_inner_widget(self, widget: "QWidget"):
+    def set_inner_widget(self, widget: "QWidget"):
         """Sets a new widget inside the node."""
         self.prepareGeometryChange()
 
         self._proxy_widget.setWidget(widget)
+        self._proxy_widget.setVisible(True)
 
         self._graphics_node_painter.repositionWidget()
         self._graphics_node_painter.recalculateGeometry()
