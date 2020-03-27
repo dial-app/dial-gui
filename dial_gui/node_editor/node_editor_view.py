@@ -2,10 +2,6 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
-
 from dial_core.node_editor import Node
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
@@ -18,6 +14,9 @@ from dial_gui.node_editor import (
     GraphicsPortPainter,
 )
 from dial_gui.widgets.menus import NodesMenuFactory
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QCursor, QPainter
+from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
 
@@ -31,6 +30,8 @@ if TYPE_CHECKING:
 class NodeEditorView(QGraphicsView):
     def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
         super().__init__(parent)
+
+        self.__tabs_widget = tabs_widget
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 
@@ -67,8 +68,6 @@ class NodeEditorView(QGraphicsView):
         self.__toggle_event_filter(toggle, self.__zoom_event_filter)
 
     def mousePressEvent(self, event: "QMouseEvent"):
-        # TODO: Explain why
-        # event.ignore()
         if event.button() == self.__panning_event_filter.button_used_for_panning:
             event.ignore()
             return
@@ -80,8 +79,6 @@ class NodeEditorView(QGraphicsView):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: "QMouseEvent"):
-        # TODO: Explain why
-        # event.ignore()
         if self.__panning_event_filter.is_panning():
             event.ignore()
             return
@@ -93,7 +90,6 @@ class NodeEditorView(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: "QMouseEvent"):
-        # TODO: Explain why
         if self.__panning_event_filter.is_panning():
             event.ignore()
             return
@@ -112,7 +108,7 @@ class NodeEditorView(QGraphicsView):
             super().wheelEvent(event)
             super().verticalScrollBar().setValue(old_value)
 
-            event.accept()
+            # event.accept()
             return
 
         event.ignore()
@@ -136,7 +132,9 @@ class NodeEditorView(QGraphicsView):
             return
 
         if self.scene().selectedItems():
-            context_menu = NodeEditorViewMenuFactory(node_editor_view=self, parent=self)
+            context_menu = NodeEditorViewMenuFactory(
+                tabs_widget=self.__tabs_widget, node_editor_view=self, parent=self
+            )
             context_menu.popup(event.globalPos())
             return
 

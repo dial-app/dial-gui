@@ -3,7 +3,8 @@
 from typing import TYPE_CHECKING, Any, Dict
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QEvent, Qt, Signal
+from dial_gui.event_filters import ResizableNodeEventFilter
+from PySide2.QtCore import Qt, Signal
 from PySide2.QtWidgets import (
     QDialog,
     QGraphicsItem,
@@ -13,8 +14,6 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from dial_gui.event_filters import ResizableNodeEventFilter
 
 from .graphics_node_painter import GraphicsNodePainterFactory
 from .graphics_port import GraphicsPortFactory
@@ -58,6 +57,7 @@ class GraphicsNode(QGraphicsObject):
         self._node = node
         self._node.graphics_node = self  # type: ignore
         self.__graphics_scene = graphics_scene
+        self.parent_viewports = []
 
         # GraphicsPorts
         self._input_graphics_ports = self.__create_graphics_ports(

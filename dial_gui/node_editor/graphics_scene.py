@@ -3,11 +3,11 @@
 from typing import TYPE_CHECKING, List
 
 import dependency_injector.providers as providers
+from dial_core.node_editor import Node, Scene, SceneFactory
+from dial_core.utils import log
 from PySide2.QtWidgets import QGraphicsItem, QGraphicsScene
 
 from dial_basic_nodes import DatasetEditorNodeFactory
-from dial_core.node_editor import Node, Scene, SceneFactory
-from dial_core.utils import log
 
 from .graphics_connection import GraphicsConnection
 from .graphics_node import GraphicsNode, GraphicsNodeFactory

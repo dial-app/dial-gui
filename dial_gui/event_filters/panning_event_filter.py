@@ -65,15 +65,15 @@ class PanningEventFilter(QObject):
         """
         if self.__panning_button_clicked(event):
             self.__start_panning_view(obj, event)
-            return True
+            return False
 
         if event.type() == QEvent.MouseMove and self.is_panning():
             self.__pan_view(obj, event)
-            return True
+            return False
 
         if self.__panning_button_released(event):
             self.__stop_panning_view(obj, event)
-            return True
+            return False
 
         return super().eventFilter(obj, event)
 
