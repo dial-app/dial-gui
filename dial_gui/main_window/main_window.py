@@ -3,28 +3,38 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QSize
-from PySide2.QtWidgets import QMainWindow, QTabBar, QTabWidget
-
 from dial_core.utils import log
-from dial_gui.node_editor import NodeEditorWindow
+from dial_gui.node_editor import NodeEditorWindow  # noqa: F401
 from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.utils import application
+from dial_gui.widgets.editor_tabwidget import EditorTabWidgetFactory
+from PySide2.QtCore import QSize
+from PySide2.QtWidgets import QMainWindow
 
 from .main_menubar import MainMenuBarFactory
 
 if TYPE_CHECKING:
+    from dial_gui.widgets.editor_tabwidget import EditorTabWidget
     from PySide2.QtWidgets import QWidget
+    from .main_menubar import MainMenuBar
+    from dial_gui.project import ProjectManagerGUI
 
 
 LOGGER = log.get_logger(__name__)
 
 
 class MainWindow(QMainWindow):
-    """The main window for the program."""
+    """The MainWindow class provides an entry point for the GUI.
+
+    All widgets must be children of a MainWindow object.
+    """
 
     def __init__(
-        self, main_menubar, project_manager, parent: "QWidget" = None,
+        self,
+        editor_tabwidget: "EditorTabWidget",
+        main_menubar: "MainMenuBar",
+        project_manager: "ProjectManagerGUI",
+        parent: "QWidget" = None,
     ):
         super().__init__(parent)
 
@@ -35,20 +45,8 @@ class MainWindow(QMainWindow):
         self.__main_menu_bar = main_menubar
         self.__main_menu_bar.setParent(self)
 
-        self.__tabs_widget = QTabWidget(self)
+        self.__editor_tabwidget = editor_tabwidget
 
-        self.__node_editor = NodeEditorWindow(
-            tabs_widget=self.__tabs_widget,
-            project_manager=self.__project_manager,
-            parent=self,
-        )
-
-        # Configure ui
-        self.__setup_ui()
-
-        self.__main_menu_bar.quit.connect(self.close)
-
-    def __setup_ui(self):
         # Set window title
         self.setWindowTitle(f"Dial {application.version()}")
 
@@ -56,20 +54,9 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self.__main_menu_bar)
         self.setStatusBar(self.statusBar())
 
-        self.setCentralWidget(self.__tabs_widget)
+        self.setCentralWidget(self.__editor_tabwidget)
 
-        self.__tabs_widget.setMovable(True)
-        self.__tabs_widget.setTabsClosable(True)
-
-        self.__tabs_widget.tabCloseRequested.connect(
-            lambda index: self.__tabs_widget.removeTab(index)
-        )
-
-        self.__tabs_widget.insertTab(0, self.__node_editor, "Editor")
-
-        # Remove "delete" button from the tab
-        self.__tabs_widget.tabBar().tabButton(0, QTabBar.RightSide).deleteLater()
-        self.__tabs_widget.tabBar().setTabButton(0, QTabBar.RightSide, None)
+        self.__main_menu_bar.quit.connect(self.close)
 
     def closeEvent(self, event):
         self.__project_manager.closeEvent(event)
@@ -83,6 +70,7 @@ class MainWindow(QMainWindow):
 
 MainWindowFactory = providers.Factory(
     MainWindow,
+    editor_tabwidget=EditorTabWidgetFactory,
     main_menubar=MainMenuBarFactory,
     project_manager=ProjectManagerGUISingleton,
 )

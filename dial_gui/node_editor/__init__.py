@@ -11,7 +11,7 @@ from .graphics_port import GraphicsPort
 from .graphics_port_painter import GraphicsPortPainter
 from .graphics_scene import GraphicsScene, GraphicsSceneFactory
 from .node_editor_view import NodeEditorView
-from .node_editor_window import NodeEditorWindow
+from .node_editor_window import NodeEditorWindow, NodeEditorWindowFactory
 
 __all__ = [
     "GraphicsNode",
@@ -22,6 +22,7 @@ __all__ = [
     "GraphicsConnectionPainter",
     "GraphicsConnectionPainterFactory",
     "NodeEditorWindow",
+    "NodeEditorWindowFactory",
     "NodeEditorView",
     "GraphicsPort",
     "GraphicsPortPainter",
