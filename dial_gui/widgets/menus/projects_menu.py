@@ -7,6 +7,7 @@ from dial_core.project import Project
 from dial_core.utils import log
 from dial_gui.project import ProjectManagerGUI, ProjectManagerGUISingleton
 from PySide2.QtWidgets import QAction, QActionGroup, QMenu
+from PySide2.QtCore import Qt
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -34,6 +35,11 @@ class ProjectsMenu(QMenu):
         self.__generate_menu_from_projects()
         self.__check_active_project(self.__project_manager_gui.active)
 
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:  # Ignore right clicks
+            return
+
+        super().mouseReleaseEvent(event)
     def __generate_menu_from_projects(self):
         self.clear()
 

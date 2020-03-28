@@ -3,10 +3,9 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import Signal
-from PySide2.QtWidgets import QAction, QMenu
-
 from dial_core.node_editor import Node, NodeRegistrySingleton
+from PySide2.QtCore import Qt, Signal
+from PySide2.QtWidgets import QAction, QMenu
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -31,6 +30,12 @@ class NodesMenu(QMenu):
             )
 
             self.addAction(action)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:  # Ignore right clicks
+            return
+
+        super().mouseReleaseEvent(event)
 
 
 NodesMenuFactory = providers.Factory(NodesMenu, node_registry=NodeRegistrySingleton)

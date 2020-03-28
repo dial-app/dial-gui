@@ -3,6 +3,7 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QAction, QMenu
 
 from .graphics_node import GraphicsNode
@@ -53,6 +54,12 @@ class NodeEditorViewMenu(QMenu):
         self.addSeparator()
         self.addAction(self._add_nodes_to_new_window_act)
         self.addMenu(self._add_nodes_to_existing_window_menu)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:  # Ignore right clicks
+            return
+
+        super().mouseReleaseEvent(event)
 
     def __remove_selected_elements(self):
         for selected_item in self.__graphics_scene.selectedItems():

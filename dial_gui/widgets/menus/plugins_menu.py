@@ -3,12 +3,11 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QUrl
-from PySide2.QtGui import QDesktopServices
-from PySide2.QtWidgets import QAction, QMenu
-
 from dial_gui.utils import application
 from dial_gui.widgets.plugin import PluginManagerDialogFactory
+from PySide2.QtCore import Qt, QUrl
+from PySide2.QtGui import QDesktopServices
+from PySide2.QtWidgets import QAction, QMenu
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -43,6 +42,12 @@ class PluginsMenu(QMenu):
         plugins_directory = application.plugins_directory()
 
         QDesktopServices.openUrl(QUrl(plugins_directory, QUrl.TolerantMode))
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:  # Ignore right clicks
+            return
+
+        super().mouseReleaseEvent(event)
 
 
 PluginsMenuFactory = providers.Factory(

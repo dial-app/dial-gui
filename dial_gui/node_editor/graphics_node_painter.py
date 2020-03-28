@@ -20,7 +20,7 @@ class GraphicsNodePainter:
         self.padding = 12
         self.clickable_margin = 15
         self.round_edge_size = 10
-        self.viewport_outline_width = 4
+        self.window_outline_width = 4
 
         # Colors/Pens/Brushes
         self.__title_color = Qt.white
@@ -31,8 +31,8 @@ class GraphicsNodePainter:
         self.__title_background_brush = QBrush(QColor("#FF313131"))
         self.__background_brush = QBrush(QColor("#E3212121"))
 
-        self.__viewport_outline_pen = QPen(self.__outline_default_color)
-        self.__viewport_outline_brush = QBrush(self.__outline_default_color)
+        self.__window_markers_pen = QPen(self.__outline_default_color)
+        self.__window_markers_brush = QBrush(self.__outline_default_color)
 
         # Graphics Components
         self.__graphics_title = QGraphicsTextItem(parent=graphics_node)
@@ -72,16 +72,7 @@ class GraphicsNodePainter:
         self.__outline_default_color = color
 
     def boundingRect(self) -> "QRectF":
-        viewport_outline_total_width = self.viewport_outline_width * len(
-            self.__graphics_node.parent_node_windows
-        )
-
-        return self.background_paint_area().adjusted(
-            -viewport_outline_total_width,
-            -viewport_outline_total_width,
-            viewport_outline_total_width,
-            viewport_outline_total_width,
-        )
+        return self.background_paint_area()
 
     def background_paint_area(self) -> "QRectF":
         proxy_rect = self.__graphics_node._proxy_widget.boundingRect()
@@ -116,10 +107,10 @@ class GraphicsNodePainter:
     ):
         """Paints the GraphicsNode item."""
 
-        self.__paint_viewport_marks(painter)
         self.__paint_background(painter)
         self.__paint_title_background(painter)
         self.__paint_outline(painter)
+        self.__paint_window_markers(painter)
 
     def __paint_background(self, painter: "QPainter"):
         """Paints the background of the node. Plain color, no lines."""
@@ -167,26 +158,18 @@ class GraphicsNodePainter:
         painter.setBrush(self.__title_background_brush)
         painter.drawPath(path_title_background.simplified())
 
-    def __paint_viewport_marks(self, painter: "QPainter"):
-        for i, parent_viewport in reversed(
-            list(enumerate(self.__graphics_node.parent_node_windows, 1))
-        ):
-            path_outline = QPainterPath()
-            path_outline.addRoundedRect(
-                self.background_paint_area().adjusted(
-                    -self.viewport_outline_width * i,
-                    -self.viewport_outline_width * i,
-                    self.viewport_outline_width * i,
-                    self.viewport_outline_width * i,
-                ),
-                self.round_edge_size,
-                self.round_edge_size,
-            )
-            self.__viewport_outline_brush.setColor(parent_viewport.color_identifier)
+    def __paint_window_markers(self, painter: "QPainter"):
+        title_width = self.__graphics_title.boundingRect().width()
 
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(self.__viewport_outline_brush)
-            painter.drawPath(path_outline.simplified())
+        for i, parent_window in reversed(
+            list(enumerate(self.__graphics_node.parent_node_windows))
+        ):
+            self.__window_markers_brush.setColor(parent_window.color_identifier)
+            self.__window_markers_pen.setColor(parent_window.color_identifier.darker())
+
+            painter.setPen(self.__window_markers_pen)
+            painter.setBrush(self.__window_markers_brush)
+            painter.drawRect(title_width + 20 + i * 25, 8, 15, 15)
 
     def __paint_outline(self, painter: "QPainter"):
         """Paints the outline of the node. Depending on if its selected or not, the

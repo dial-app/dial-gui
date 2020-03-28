@@ -116,39 +116,6 @@ class EditorTabWidget(QStackedWidget):
         tabs_widget.tabBar().setTabButton(0, QTabBar.RightSide, None)
         tabs_widget.setCurrentIndex(0)
 
-    # def __add_new_tabbar(self, index: int):
-    #     self.__tabbars.insert(
-    #         index, self.CustomTabBar(self.__node_editor_window, parent=self)
-    #     )
-    #     print("New tabbar")
-
-    # def __set_active_tabbar(self, index: int):
-    #     print("asdf")
-
-    # def set_active_tabbar(self, index: int):
-    #     self.setTabBar(self.__tabbars[index])
-
-    # def remove_tabbar(self, index: int):
-    #     del self.__tabbars[index]
-
-    # def add_nodes_window_tab(self, nodes_window: "NodesWindow"):
-    #     square_pixmap = QPixmap(16, 16)
-    #     square_pixmap.fill(nodes_window.color_identifier)
-    #     self.addTab(nodes_window, QIcon(square_pixmap), nodes_window.name)
-
-    # def remove_nodes_window_tab(self, nodes_window: "NodesWindow"):
-    #     index = self.indexOf(nodes_window)
-    #     super().removeTab(index)
-
-    # def removeTab(self, index: int):
-    #     widget = self.widget(index)
-    #     if isinstance(widget, NodesWindow):
-    #         self.__nodes_windows_manager.remove_nodes_window(widget)
-
-    # @property
-    # def node_editor_window(self) -> "NodeEditorWindow":
-    #     return self.__node_editor_window
-
 
 EditorTabWidgetFactory = providers.Factory(
     EditorTabWidget,

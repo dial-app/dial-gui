@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
 from dial_gui.project import ProjectManagerGUISingleton
-from PySide2.QtCore import Signal
+from PySide2.QtCore import Qt, Signal
 from PySide2.QtGui import QKeySequence
 from PySide2.QtWidgets import QAction, QMenu
 
@@ -63,6 +63,12 @@ class FileMenu(QMenu):
         self.addAction(self._close_project_act)
         self.addSeparator()
         self.addAction(self._quit_act)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:  # Ignore right clicks
+            return
+
+        super().mouseReleaseEvent(event)
 
 
 FileMenuFactory = providers.Factory(
