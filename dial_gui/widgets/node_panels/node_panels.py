@@ -76,34 +76,38 @@ class NodesWindow(QMainWindow):
         self.name = name
 
         self.__node_panel_factory = node_panel_factory
-        self.__node_panels: Set["ViewportNodeBlock"] = set()
+
+        self.__node_panels = {}
 
         self.color_identifier = QColor.fromHsvF(random.random(), 0.65, 0.6)
 
         self.setCentralWidget(QWidget())
 
-    @property
-    def node_panels(self) -> Set["NodePanel"]:
-        return self.__node_panels
-
     def add_graphics_node(self, graphics_node: "GraphicsNode"):
-        if graphics_node in [p.graphics_node for p in self.__node_panels]:
+        if graphics_node in self.__node_panels:
             return
 
-        viewport_node_block = self.__node_panel_factory(graphics_node, parent=self)
+        node_panel = self.__node_panel_factory(graphics_node, parent=self)
 
-        self.__node_panels.add(viewport_node_block)
+        self.__node_panels[graphics_node] = node_panel
         graphics_node.parent_node_windows.append(self)
 
         if len(self.__node_panels) % 2:
-            self.addDockWidget(Qt.RightDockWidgetArea, viewport_node_block)
+            self.addDockWidget(Qt.RightDockWidgetArea, node_panel)
         else:
-            self.addDockWidget(Qt.LeftDockWidgetArea, viewport_node_block)
+            self.addDockWidget(Qt.LeftDockWidgetArea, node_panel)
+
+    def remove_graphics_node(self, graphics_node: "GraphicsNode"):
+        if graphics_node not in self.__node_panels:
+            return
+
+        node_panel = self.__node_panels[graphics_node]
+        self.removeDockWidget(node_panel)
 
     def clear(self):
-        for node_panel in self.__node_panels:
+        for graphics_node in self.__node_panels.keys():
             try:
-                node_panel.graphics_node.parent_node_windows.remove(self)
+                graphics_node.parent_node_windows.remove(self)
             except ValueError:
                 pass
 

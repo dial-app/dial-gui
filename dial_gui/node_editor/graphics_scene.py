@@ -96,6 +96,9 @@ class GraphicsScene(QGraphicsScene):
                 for connection in port.graphics_connections:
                     self.__remove_graphics_connection(connection)
 
+            for nodes_window in graphics_node.parent_node_windows:
+                nodes_window.remove_graphics_node(graphics_node)
+
             super().removeItem(graphics_node)
 
         except ValueError:
