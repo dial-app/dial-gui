@@ -35,26 +35,13 @@ class NodeEditorWindow(QWidget):
 
         self.setLayout(self.__main_layout)
 
-        # Connections
-        # self.__project_manager_gui.active_project_changed.connect(
-        #     self.__active_project_changed
-        # )
-
-        # self.__active_project_changed(self.__project_manager_gui.active)
-
     def change_view(self, new_node_editor_view: "NodeEditorView"):
         self.__node_editor_view = new_node_editor_view
-        # self.__node_editor_view.setParent(self)
         self.__node_editor_view.setScene(self.__graphics_scene)
 
     def change_graphics_scene(self, new_graphics_scene: "GraphicsScene"):
         self.__graphics_scene = new_graphics_scene
-        # self.__graphics_scene.setParent(self)
         self.__node_editor_view.setScene(self.__graphics_scene)
-
-    # def __active_project_changed(self, project: "ProjectGUI"):
-    #     self.__node_editor_view.disconnect(self.__graphics_scene)
-    #     self.__node_editor_view.setScene(project.graphics_scene)
 
 
 NodeEditorWindowFactory = providers.Factory(

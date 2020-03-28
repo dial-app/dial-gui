@@ -73,7 +73,7 @@ class GraphicsNodePainter:
 
     def boundingRect(self) -> "QRectF":
         viewport_outline_total_width = self.viewport_outline_width * len(
-            self.__graphics_node.parent_viewports
+            self.__graphics_node.parent_node_windows
         )
 
         return self.background_paint_area().adjusted(
@@ -169,7 +169,7 @@ class GraphicsNodePainter:
 
     def __paint_viewport_marks(self, painter: "QPainter"):
         for i, parent_viewport in reversed(
-            list(enumerate(self.__graphics_node.parent_viewports, 1))
+            list(enumerate(self.__graphics_node.parent_node_windows, 1))
         ):
             path_outline = QPainterPath()
             path_outline.addRoundedRect(

@@ -57,7 +57,7 @@ class GraphicsNode(QGraphicsObject):
         self._node = node
         self._node.graphics_node = self  # type: ignore
         self.__graphics_scene = graphics_scene
-        self.parent_viewports = []
+        self.parent_node_windows = []
 
         # GraphicsPorts
         self._input_graphics_ports = self.__create_graphics_ports(

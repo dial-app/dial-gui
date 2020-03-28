@@ -26,16 +26,11 @@ if TYPE_CHECKING:
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
     from PySide2.QtWidgets import QWidget
-    from dial_gui.widgets.editor_tabwidget import EditorTabWidget
 
 
 class NodeEditorView(QGraphicsView):
-    def __init__(
-        self, editor_tabwidget: "EditorTabWidget" = None, parent: "QWidget" = None
-    ):
+    def __init__(self, parent: "QWidget" = None):
         super().__init__(parent)
-
-        self.__editor_tabwidget = editor_tabwidget
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 
@@ -137,7 +132,7 @@ class NodeEditorView(QGraphicsView):
 
         if self.scene().selectedItems():
             context_menu = NodeEditorViewMenuFactory(
-                tabs_widget=self.__tabs_widget, node_editor_view=self, parent=self
+                graphics_scene=self.scene(), parent=self
             )
             context_menu.popup(event.globalPos())
             return
