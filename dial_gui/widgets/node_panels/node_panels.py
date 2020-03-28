@@ -1,6 +1,6 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 import random
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Set
 
 import dependency_injector.providers as providers
 from PySide2.QtCore import QEvent, QObject, Qt, Signal
@@ -76,21 +76,24 @@ class NodesWindow(QMainWindow):
         self.name = name
 
         self.__node_panel_factory = node_panel_factory
-        self.__node_panels: List["ViewportNodeBlock"] = []
+        self.__node_panels: Set["ViewportNodeBlock"] = set()
 
         self.color_identifier = QColor.fromHsvF(random.random(), 0.65, 0.6)
 
         self.setCentralWidget(QWidget())
 
     @property
-    def node_panels(self) -> List["NodePanel"]:
+    def node_panels(self) -> Set["NodePanel"]:
         return self.__node_panels
 
     def add_graphics_node(self, graphics_node: "GraphicsNode"):
+        if graphics_node in [p.graphics_node for p in self.__node_panels]:
+            return
+
         viewport_node_block = self.__node_panel_factory(graphics_node, parent=self)
-        self.__node_panels.append(viewport_node_block)
+
+        self.__node_panels.add(viewport_node_block)
         graphics_node.parent_node_windows.append(self)
-        print(graphics_node.parent_node_windows)
 
         if len(self.__node_panels) % 2:
             self.addDockWidget(Qt.RightDockWidgetArea, viewport_node_block)

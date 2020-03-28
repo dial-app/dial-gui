@@ -38,6 +38,9 @@ class NodeEditorViewMenu(QMenu):
             "Add nodes to existing window...", self
         )
 
+        if len(self.__nodes_windows_manager.nodes_windows) == 0:
+            self._add_nodes_to_existing_window_menu.setEnabled(False)
+
         for window in self.__nodes_windows_manager.nodes_windows:
             action = self._add_nodes_to_existing_window_menu.addAction(window.name)
             action.triggered.connect(
