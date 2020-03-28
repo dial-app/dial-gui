@@ -120,7 +120,7 @@ class NodesWindowsManager(QObject):
 
     @property
     def nodes_windows(self):
-        return self.__node_windows
+        return self.__nodes_windows
 
     def new_nodes_window(self) -> "NodesWindow":
         nodes_window = self._new_nodes_impl()

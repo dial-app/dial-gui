@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import dependency_injector.providers as providers
 from dial_gui.node_editor import NodeEditorWindowFactory
 from dial_gui.widgets.node_panels import NodesWindow, NodesWindowsManagerSingleton
+from PySide2.QtGui import QIcon, QPixmap
 from PySide2.QtWidgets import QTabBar, QTabWidget
 
 if TYPE_CHECKING:
@@ -51,7 +52,9 @@ class EditorTabWidget(QTabWidget):
         )
 
     def add_nodes_window_tab(self, nodes_window: "NodesWindow"):
-        self.addTab(nodes_window, nodes_window.name)
+        square_pixmap = QPixmap(16, 16)
+        square_pixmap.fill(nodes_window.color_identifier)
+        self.addTab(nodes_window, QIcon(square_pixmap), nodes_window.name)
 
     def remove_nodes_window_tab(self, nodes_window: "NodesWindow"):
         index = self.indexOf(nodes_window)
