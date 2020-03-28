@@ -133,6 +133,9 @@ class NodesWindowsManager(QObject):
     def remove_nodes_window(self, nodes_window: "NodesWindow"):
         self._remove_nodes_window_impl(nodes_window)
 
+    def __reduce__(self):
+        return (NodesWindowsManager, (self.__nodes_windows_factory,))
+
     def _new_nodes_impl(self) -> "NodesWindow":
         nodes_window = self.__nodes_windows_factory(
             name=f"Nodes Window {len(self.__nodes_windows) + 1}"
@@ -158,6 +161,6 @@ class NodesWindowsManager(QObject):
 NodePanelFactory = providers.Factory(NodePanel)
 NodesWindowFactory = providers.Factory(NodesWindow, NodePanelFactory.delegate())
 
-NodesWindowsManagerSingleton = providers.Singleton(
+NodesWindowsManagerFactory = providers.Factory(
     NodesWindowsManager, nodes_windows_factory=NodesWindowFactory.delegate()
 )

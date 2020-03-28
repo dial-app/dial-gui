@@ -87,6 +87,7 @@ class ProjectManagerGUI(QWidget, ProjectManager):
 
     def _add_project_impl(self, project: "ProjectGUI") -> "ProjectGUI":
         super()._add_project_impl(project)
+        project.index = self.projects_count() - 1
 
         self.project_added.emit(project)
         return project

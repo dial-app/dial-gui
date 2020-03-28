@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from dial_gui.widgets.node_panels import NodesWindowsManagerSingleton
 from PySide2.QtWidgets import QAction, QMenu
 
 from .graphics_node import GraphicsNode
@@ -71,6 +70,4 @@ class NodeEditorViewMenu(QMenu):
                 window.add_graphics_node(selected_item)
 
 
-NodeEditorViewMenuFactory = providers.Factory(
-    NodeEditorViewMenu, nodes_windows_manager=NodesWindowsManagerSingleton
-)
+NodeEditorViewMenuFactory = providers.Factory(NodeEditorViewMenu)

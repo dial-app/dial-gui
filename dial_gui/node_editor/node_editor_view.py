@@ -14,6 +14,7 @@ from dial_gui.node_editor import (
     GraphicsPort,
     GraphicsPortPainter,
 )
+from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.widgets.menus import NodesMenuFactory
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor, QPainter
@@ -26,11 +27,14 @@ if TYPE_CHECKING:
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
     from PySide2.QtWidgets import QWidget
+    from dial_gui.project import ProjectManagerGUI
 
 
 class NodeEditorView(QGraphicsView):
-    def __init__(self, parent: "QWidget" = None):
+    def __init__(self, project_manager: "ProjectManagerGUI", parent: "QWidget" = None):
         super().__init__(parent)
+
+        self.__project_manager = project_manager
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 
@@ -132,7 +136,11 @@ class NodeEditorView(QGraphicsView):
 
         if self.scene().selectedItems():
             context_menu = NodeEditorViewMenuFactory(
-                graphics_scene=self.scene(), parent=self
+                graphics_scene=self.scene(),
+                nodes_windows_manager=(
+                    self.__project_manager.active.nodes_windows_manager
+                ),
+                parent=self,
             )
             context_menu.popup(event.globalPos())
             return
@@ -284,4 +292,6 @@ class NodeEditorView(QGraphicsView):
             self.uninstallEventFilter(event_filter)
 
 
-NodeEditorViewFactory = providers.Factory(NodeEditorView)
+NodeEditorViewFactory = providers.Factory(
+    NodeEditorView, project_manager=ProjectManagerGUISingleton
+)

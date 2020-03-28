@@ -56,21 +56,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.__editor_tabwidget)
 
-        self.__setup_connections()
-
-    def __setup_connections(self):
-        # Close the application when the quit button is clicked
         self.__main_menu_bar.quit.connect(self.close)
-
-        # Change the active scene when the project is changed
-        def change_graphics_scene_from_project(project):
-            self.__editor_tabwidget.node_editor_window.change_graphics_scene(
-                project.graphics_scene
-            )
-
-        self.__project_manager.active_project_changed.connect(
-            change_graphics_scene_from_project
-        )
 
     def closeEvent(self, event):
         self.__project_manager.closeEvent(event)
