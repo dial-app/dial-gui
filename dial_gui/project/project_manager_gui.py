@@ -15,7 +15,7 @@ class ProjectManagerGUI(QWidget, ProjectManager):
     new_project_created = Signal(ProjectGUI)
     project_added = Signal(ProjectGUI)
     active_project_changed = Signal(ProjectGUI)
-    project_removed = Signal(ProjectGUI)
+    project_removed = Signal(ProjectGUI, int)
 
     def __init__(self, default_project: "ProjectGUI", parent=None):
         QWidget.__init__(self, parent)
@@ -98,8 +98,11 @@ class ProjectManagerGUI(QWidget, ProjectManager):
         return active_project
 
     def _remove_project_impl(self, project: "ProjectGUI") -> "ProjectGUI":
+        index = self.index_of(project)
         super()._remove_project_impl(project)
-        self.project_removed.emit(project)
+
+        self.project_removed.emit(project, index)
+
         return project
 
 

@@ -94,13 +94,19 @@ class EditorTabWidget(QStackedWidget):
             lambda project: self.__new_tabs_widget(project.nodes_windows_manager)
         )
         self.__project_manager.active_project_changed.connect(
-            lambda project: self.setCurrentIndex(project.index)
+            lambda project: self.setCurrentIndex(
+                self.__project_manager.index_of(project)
+            )
         )
 
         self.__project_manager.active_project_changed.connect(
             lambda project: self.__node_editor_window.change_graphics_scene(
                 project.graphics_scene
             )
+        )
+
+        self.__project_manager.project_removed.connect(
+            lambda project, index: self.removeWidget(self.widget(index))
         )
 
     def setCurrentIndex(self, index: int):

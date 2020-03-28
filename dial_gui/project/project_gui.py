@@ -21,8 +21,6 @@ class ProjectGUI(Project):
     ):
         super().__init__(name, graphics_scene.scene)
 
-        self.index = -1
-
         self.__graphics_scene = graphics_scene
         self.__nodes_windows_manager = nodes_windows_manager
 

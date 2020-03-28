@@ -6,8 +6,8 @@ import dependency_injector.providers as providers
 from dial_core.project import Project
 from dial_core.utils import log
 from dial_gui.project import ProjectManagerGUI, ProjectManagerGUISingleton
-from PySide2.QtWidgets import QAction, QActionGroup, QMenu
 from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QAction, QActionGroup, QMenu
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -40,6 +40,7 @@ class ProjectsMenu(QMenu):
             return
 
         super().mouseReleaseEvent(event)
+
     def __generate_menu_from_projects(self):
         self.clear()
 
