@@ -3,29 +3,29 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from dial_gui.project import ProjectManagerGUISingleton
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from .node_editor_view import NodeEditorView
+from .graphics_scene import GraphicsSceneFactory
+from .node_editor_view import NodeEditorViewFactory
 
 if TYPE_CHECKING:
-    from dial_gui.project import ProjectGUI, ProjectManagerGUI
+    from .node_editor_view import NodeEditorView
+    from .graphics_scene import GraphicsScene
 
 
 class NodeEditorWindow(QWidget):
     def __init__(
-        self, project_manager_gui: "ProjectManagerGUI", parent: "QWidget" = None,
+        self,
+        node_editor_view: "NodeEditorView",
+        graphics_scene: "GraphicsScene",
+        parent: "QWidget" = None,
     ):
         super().__init__(parent)
 
-        # Components
-        self.__project_manager_gui = project_manager_gui
-
-        # TODO: Change QWidget()
-        self.__node_editor_view = NodeEditorView(QWidget(), parent=self)
+        self.__node_editor_view = node_editor_view
         self.__node_editor_view.setParent(self)
 
-        self.__graphics_scene = self.__project_manager_gui.active.graphics_scene
+        self.__graphics_scene = graphics_scene
 
         self.__node_editor_view.setScene(self.__graphics_scene)
 
@@ -36,17 +36,29 @@ class NodeEditorWindow(QWidget):
         self.setLayout(self.__main_layout)
 
         # Connections
-        self.__project_manager_gui.active_project_changed.connect(
-            self.__active_project_changed
-        )
+        # self.__project_manager_gui.active_project_changed.connect(
+        #     self.__active_project_changed
+        # )
 
-        self.__active_project_changed(self.__project_manager_gui.active)
+        # self.__active_project_changed(self.__project_manager_gui.active)
 
-    def __active_project_changed(self, project: "ProjectGUI"):
-        self.__node_editor_view.disconnect(self.__graphics_scene)
-        self.__node_editor_view.setScene(project.graphics_scene)
+    def change_view(self, new_node_editor_view: "NodeEditorView"):
+        self.__node_editor_view = new_node_editor_view
+        # self.__node_editor_view.setParent(self)
+        self.__node_editor_view.setScene(self.__graphics_scene)
+
+    def change_graphics_scene(self, new_graphics_scene: "GraphicsScene"):
+        self.__graphics_scene = new_graphics_scene
+        # self.__graphics_scene.setParent(self)
+        self.__node_editor_view.setScene(self.__graphics_scene)
+
+    # def __active_project_changed(self, project: "ProjectGUI"):
+    #     self.__node_editor_view.disconnect(self.__graphics_scene)
+    #     self.__node_editor_view.setScene(project.graphics_scene)
 
 
 NodeEditorWindowFactory = providers.Factory(
-    NodeEditorWindow, project_manager_gui=ProjectManagerGUISingleton
+    NodeEditorWindow,
+    node_editor_view=NodeEditorViewFactory,
+    graphics_scene=GraphicsSceneFactory,
 )

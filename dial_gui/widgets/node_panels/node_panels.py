@@ -17,7 +17,7 @@ class EditorTabWidget(QTabWidget):
     """
 
     def __init__(
-        self, node_editor_window: "NodeEditorWindow", parent: "QWidget" = None
+        self, node_editor_window: "NodeEditorWindow", parent: "QWidget" = None,
     ):
         super().__init__(parent)
 
@@ -32,6 +32,10 @@ class EditorTabWidget(QTabWidget):
 
         self.tabBar().tabButton(0, QTabBar.RightSide).deleteLater()
         self.tabBar().setTabButton(0, QTabBar.RightSide, None)
+
+    @property
+    def node_editor_window(self) -> "NodeEditorWindow":
+        return self.__node_editor_window
 
 
 EditorTabWidgetFactory = providers.Factory(

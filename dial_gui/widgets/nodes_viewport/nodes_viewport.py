@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from dial_gui.node_editor import GraphicsNode
 
 
-class ViewportNodeBlock(QDockWidget):
+class NodePanel(QDockWidget):
     def __init__(self, graphics_node: "GraphicsNode", parent: "QWidget" = None):
         super().__init__(graphics_node.title, parent)
 
@@ -24,23 +24,23 @@ class ViewportNodeBlock(QDockWidget):
 
     def event(self, event: "QEvent"):
         if event.type() == QEvent.Show:
-            self.enable()
+            self.__enable()
             return True
 
         if event.type() == QEvent.Hide:
-            self.disable()
+            self.__disable()
             return True
 
         return super().event(event)
 
-    def enable(self):
+    def __enable(self):
         self.__last_size = self.__inner_widget.size()
 
         self.__graphics_node.set_inner_widget(QWidget())
 
         self.setWidget(self.__inner_widget)
 
-    def disable(self):
+    def __disable(self):
         self.setWidget(None)
         self.__inner_widget.setParent(None)
 
@@ -60,7 +60,7 @@ class ViewportNodeBlock(QDockWidget):
         dialog.close()
 
 
-class NodesViewport(QMainWindow):
+class NodePanelsWindow(QMainWindow):
     def __init__(self, parent: "QWidget" = None):
         super().__init__(parent)
 
@@ -71,7 +71,7 @@ class NodesViewport(QMainWindow):
         self.setCentralWidget(QWidget())
 
     def add_graphics_node(self, graphics_node: "GraphicsNode"):
-        viewport_node_block = ViewportNodeBlock(graphics_node, parent=self)
+        viewport_node_block = NodePanel(graphics_node, parent=self)
         self.__node_blocks.append(viewport_node_block)
         graphics_node.parent_viewports.append(self)
 
@@ -81,4 +81,9 @@ class NodesViewport(QMainWindow):
             self.addDockWidget(Qt.LeftDockWidgetArea, viewport_node_block)
 
 
-NodesViewportFactory = providers.Factory(NodesViewport)
+class NodePanelsWindowsManager:
+    def __init__(self):
+        self.__node_panels_windows = []
+
+
+NodePanelsWindowsManagerSingleton = providers.Singleton(NodePanelsWindowsManager)

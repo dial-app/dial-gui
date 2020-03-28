@@ -73,7 +73,9 @@ def __plugins_initialization(args: "argparse.Namespace"):
 
     LOGGER.info("%s added to sys.path", plugins_install_abs_path)
 
-    plugins_manager = PluginManagerSingleton()
+    plugins_manager = PluginManagerSingleton(
+        application.installed_plugins_file_content()
+    )
 
     LOGGER.debug("Installed plugins: %s", plugins_manager.installed_plugins)
 

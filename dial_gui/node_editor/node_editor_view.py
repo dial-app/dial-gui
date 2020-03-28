@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+import dependency_injector.providers as providers
 from dial_core.node_editor import Node
 from dial_core.utils import log
 from dial_gui.event_filters import PanningEventFilter, ZoomEventFilter
@@ -24,14 +25,17 @@ if TYPE_CHECKING:
     from PySide2.QtGui import QContextMenuEvent
     from PySide2.QtCore import QObject
     from PySide2.QtGui import QMouseEvent, QWheelEvent
-    from PySide2.QtWidgets import QTabWidget, QWidget
+    from PySide2.QtWidgets import QWidget
+    from dial_gui.widgets.editor_tabwidget import EditorTabWidget
 
 
 class NodeEditorView(QGraphicsView):
-    def __init__(self, tabs_widget: "QTabWidget", parent: "QWidget" = None):
+    def __init__(
+        self, editor_tabwidget: "EditorTabWidget" = None, parent: "QWidget" = None
+    ):
         super().__init__(parent)
 
-        self.__tabs_widget = tabs_widget
+        self.__editor_tabwidget = editor_tabwidget
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 
@@ -283,3 +287,6 @@ class NodeEditorView(QGraphicsView):
             self.installEventFilter(event_filter)
         else:
             self.uninstallEventFilter(event_filter)
+
+
+NodeEditorViewFactory = providers.Factory(NodeEditorView)

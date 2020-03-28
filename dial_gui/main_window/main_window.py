@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 
 LOGGER = log.get_logger(__name__)
 
+# TODO:
+# * Finish NodePanes
+# * Connect from MainWindow to NodeEditorWindow change_graphics_scene method
+
 
 class MainWindow(QMainWindow):
     """The MainWindow class provides an entry point for the GUI.
