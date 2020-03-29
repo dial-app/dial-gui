@@ -6,8 +6,11 @@ import dependency_injector.providers as providers
 from dial_gui.node_editor import NodeEditorWindowFactory
 from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.widgets.node_panels import NodesWindow
+from PySide2.QtCore import QEvent
 from PySide2.QtGui import QIcon, QPixmap
 from PySide2.QtWidgets import QStackedWidget, QTabBar, QTabWidget, QWidget
+
+from .tab_settings_dialog import TabSettingsDialog
 
 if TYPE_CHECKING:
     from dial_gui.project import ProjectManagerGUI
@@ -24,10 +27,54 @@ class CustomTabWidget(QTabWidget):
 
         self.setMovable(True)
         self.setTabsClosable(True)
+        self.tabBar().installEventFilter(self)
 
         self.tabCloseRequested.connect(lambda index: self.removeTab(index))
 
         self.__setup_connection()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonDblClick:
+            index = obj.tabAt(event.pos())
+            widget = self.widget(index)
+
+            if isinstance(widget, NodesWindow):
+                self.__tab_renamer_dialog = TabSettingsDialog(
+                    index=index,
+                    name=widget.name,
+                    current_color=widget.color_identifier,
+                    parent=self,
+                )
+                self.__tab_renamer_dialog.current_color_changed.connect(
+                    self.__tab_color_changed
+                )
+                self.__tab_renamer_dialog.current_name_changed.connect(
+                    self.__tab_name_changed
+                )
+                self.__tab_renamer_dialog.show()
+
+        return super().eventFilter(obj, event)
+
+    def __tab_color_changed(self, index, color):
+        nodes_window = self.widget(index)
+
+        if not nodes_window:
+            return
+
+        nodes_window.color_identifier = color
+
+        square_pixmap = QPixmap(16, 16)
+        square_pixmap.fill(nodes_window.color_identifier)
+        self.setTabIcon(index, QIcon(square_pixmap))
+
+    def __tab_name_changed(self, index, name):
+        nodes_window = self.widget(index)
+
+        if not nodes_window:
+            return
+
+        nodes_window.name = name
+        self.setTabText(index, name)
 
     def __setup_connection(self):
         self.__nodes_windows_manager.nodes_window_added.connect(

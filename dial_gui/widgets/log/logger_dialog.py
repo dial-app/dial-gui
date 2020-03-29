@@ -1,16 +1,14 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 import logging
 from typing import TYPE_CHECKING
 
+import dependency_injector.providers as providers
+from dial_core.utils import log
 from PySide2.QtCore import QSize
 from PySide2.QtWidgets import QDialog, QVBoxLayout
 
-from .logger_textbox import LoggerTextboxWidget, LoggerTextboxFactory
-
-from dial_core.utils import log
+from .logger_textbox import LoggerTextboxFactory, LoggerTextboxWidget
 
 if TYPE_CHECKING:
     from PySide2.QtWidgets import QWidget
@@ -51,7 +49,7 @@ class LoggerDialog(QDialog):
 
     def sizeHint(self) -> "QSize":
         """Preferred size of this dialog."""
-        return QSize(800, 600)
+        return QSize(1000, 600)
 
 
 LoggerDialogFactory = providers.Factory(
