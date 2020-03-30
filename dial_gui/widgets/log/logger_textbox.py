@@ -1,12 +1,10 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import dependency_injector.providers as providers
-
 import logging
 
-from PySide2.QtWidgets import QPlainTextEdit, QVBoxLayout, QWidget
-
+import dependency_injector.providers as providers
 from dial_core.utils import log
+from PySide2.QtWidgets import QPlainTextEdit, QVBoxLayout, QWidget
 
 
 class LoggerTextboxWidget(logging.Handler, QWidget):
@@ -25,8 +23,12 @@ class LoggerTextboxWidget(logging.Handler, QWidget):
         self.setFormatter(formatter)
 
         self._textbox = QPlainTextEdit(self)
+        self._textbox.setReadOnly(True)
 
-        self.__setup_ui()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._textbox)
+        self.setLayout(layout)
 
     @property
     def text(self) -> str:
@@ -42,19 +44,6 @@ class LoggerTextboxWidget(logging.Handler, QWidget):
         corresponding format and sends it to the textbox."""
         msg = self.format(record)
         self._textbox.appendPlainText(msg)
-
-    def __setup_ui(self):
-        """Configures the widget and layout settings."""
-        # Log messages window must be readonly
-        self._textbox.setReadOnly(True)
-
-        # Add log textbox to layout without margins
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        layout.addWidget(self._textbox)
-
-        self.setLayout(layout)
 
 
 LoggerTextboxFactory = providers.Factory(LoggerTextboxWidget, formatter=log.FORMATTER)
