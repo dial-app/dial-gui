@@ -237,7 +237,6 @@ class NodeEditorView(QGraphicsView):
 
             self.__new_connection.start_graphics_port = start_graphics_port
             self.__new_connection.end_graphics_port = item
-            self.scene().addItem(self.__new_connection)
         else:
             self.scene().removeItem(self.__new_connection)
 
