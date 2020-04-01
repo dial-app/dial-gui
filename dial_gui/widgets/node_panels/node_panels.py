@@ -129,8 +129,11 @@ class NodesWindowsManager(QObject):
     def nodes_windows(self):
         return self.__nodes_windows
 
-    def new_nodes_window(self) -> "NodesWindow":
-        nodes_window = self._new_nodes_impl()
+    def new_nodes_window(self, name=None) -> "NodesWindow":
+        if not name:
+            name = f"Nodes Window {len(self.__nodes_windows) + 1}"
+
+        nodes_window = self._new_nodes_impl(name)
 
         return self.add_nodes_window(nodes_window)
 
@@ -143,10 +146,8 @@ class NodesWindowsManager(QObject):
     def __reduce__(self):
         return (NodesWindowsManager, (self.__nodes_windows_factory,))
 
-    def _new_nodes_impl(self) -> "NodesWindow":
-        nodes_window = self.__nodes_windows_factory(
-            name=f"Nodes Window {len(self.__nodes_windows) + 1}"
-        )
+    def _new_nodes_impl(self, name) -> "NodesWindow":
+        nodes_window = self.__nodes_windows_factory(name=name)
         self.new_nodes_window_created.emit(nodes_window)
         return nodes_window
 
