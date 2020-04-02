@@ -87,11 +87,12 @@ class NodeEditorViewMenu(QMenu):
 
     def __add_each_selected_node_to_new_window(self):
         """For each selected node, add it to a new window."""
-        for graphics_node in self.__graphics_scene.selectedItems():
-            nodes_window = self.__nodes_windows_manager.new_nodes_window(
-                name=graphics_node.title
-            )
-            self.__add_nodes_to_window([graphics_node], nodes_window)
+        for item in self.__graphics_scene.selectedItems():
+            if isinstance(item, GraphicsNode):
+                nodes_window = self.__nodes_windows_manager.new_nodes_window(
+                    name=item.title
+                )
+                self.__add_nodes_to_window([item], nodes_window)
 
     def __add_nodes_to_window(self, graphics_nodes, window):
         """Add the nodes to the passed window."""

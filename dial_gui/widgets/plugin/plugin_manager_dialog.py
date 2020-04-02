@@ -1,14 +1,13 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import logging
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QSize
-from PySide2.QtWidgets import QDialog, QVBoxLayout, QGroupBox
-
-from dial_gui.widgets.log import LoggerTextboxFactory
 from dial_core.utils import log
-import logging
+from dial_gui.widgets.log import LoggerTextboxFactory
+from PySide2.QtCore import QSize
+from PySide2.QtWidgets import QDialog, QGroupBox, QVBoxLayout
 
 from .plugins_table import PluginsTableWidgetFactory
 
