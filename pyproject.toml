@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dial-gui"
-version = "0.7a0"
+version = "0.8a0"
 description = "A node-based GUI for Deep Learning tasks"
 authors = ["David Afonso <davafons@gmail.com>"]
 
@@ -13,9 +13,7 @@ homepage = "https://github.com/dial-app/dial-gui"
 
 [tool.poetry.dependencies]
 python = ">=3.6, <3.8"
-dial-core = { path = "/home/david/dial-core" }
-
-dial-basic-nodes = {path = "/home/david/.config/dial/plugins/dial-basic-nodes"}
+dial-core = "v0.12a0"
 
 tensorflow = "2.0.0b1"
 PySide2 = "^5.12.6"
