@@ -3,13 +3,12 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import QEvent
-from PySide2.QtGui import QIcon, QPixmap
-from PySide2.QtWidgets import QStackedWidget, QTabBar, QTabWidget, QWidget
-
 from dial_gui.node_editor import NodeEditorWindowFactory
 from dial_gui.node_editor.nodes_windows import NodesWindow
 from dial_gui.project import ProjectManagerGUISingleton
+from PySide2.QtCore import QEvent
+from PySide2.QtGui import QIcon, QPixmap
+from PySide2.QtWidgets import QStackedWidget, QTabBar, QTabWidget, QWidget
 
 from .tab_settings_dialog import TabSettingsDialog
 
@@ -43,13 +42,13 @@ class CustomTabWidget(QTabWidget):
                 self.__tab_renamer_dialog = TabSettingsDialog(
                     index=index,
                     name=widget.name,
-                    current_color=widget.color_identifier,
+                    color=widget.color_identifier,
                     parent=self,
                 )
-                self.__tab_renamer_dialog.current_color_changed.connect(
+                self.__tab_renamer_dialog.color_changed.connect(
                     self.__tab_color_changed
                 )
-                self.__tab_renamer_dialog.current_name_changed.connect(
+                self.__tab_renamer_dialog.name_changed.connect(
                     self.__tab_name_changed
                 )
                 self.__tab_renamer_dialog.show()
