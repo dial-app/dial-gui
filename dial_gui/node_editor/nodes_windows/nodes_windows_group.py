@@ -6,17 +6,25 @@ from PySide2.QtCore import QObject, Signal
 from .nodes_window import NodesWindow, NodesWindowFactory
 
 
-class NodesWindowsManager(QObject):
+class NodesWindowsGroup(QObject):
+    """The NodesWindowsGroup class provides a container for NodesWindow objects.
+
+    This container allows to group several NodesWindow that are related between them
+    (For example, because they're all part of the same Project).
+    """
+
     new_nodes_window_created = Signal(NodesWindow)
     nodes_window_added = Signal(NodesWindow)
     nodes_window_removed = Signal(NodesWindow)
 
     def __init__(
-        self, nodes_windows_factory: "providers.Factory", parent: "QObject" = None
+        self,
+        default_nodes_windows_factory: "providers.Factory",
+        parent: "QObject" = None,
     ):
         super().__init__(parent)
 
-        self.__nodes_windows_factory = nodes_windows_factory
+        self.__default_nodes_windows_factory = default_nodes_windows_factory
         self.__nodes_windows = []
 
     @property
@@ -38,10 +46,10 @@ class NodesWindowsManager(QObject):
         self._remove_nodes_window_impl(nodes_window)
 
     def __reduce__(self):
-        return (NodesWindowsManager, (self.__nodes_windows_factory,))
+        return (NodesWindowsGroup, (self.__default_nodes_windows_factory,))
 
     def _new_nodes_impl(self, name) -> "NodesWindow":
-        nodes_window = self.__nodes_windows_factory(name=name)
+        nodes_window = self.__default_nodes_windows_factory(name=name)
         self.new_nodes_window_created.emit(nodes_window)
         return nodes_window
 
@@ -60,6 +68,6 @@ class NodesWindowsManager(QObject):
             pass
 
 
-NodesWindowsManagerFactory = providers.Factory(
-    NodesWindowsManager, nodes_windows_factory=NodesWindowFactory.delegate()
+NodesWindowsGroupFactory = providers.Factory(
+    NodesWindowsGroup, default_nodes_windows_factory=NodesWindowFactory.delegate()
 )

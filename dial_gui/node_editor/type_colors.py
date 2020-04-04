@@ -1,10 +1,9 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-from PySide2.QtGui import QColor
-from tensorflow.keras import Model
-
 from dial_core.datasets import Dataset
 from dial_core.utils import Dial
+from PySide2.QtGui import QColor
+from tensorflow.keras import Model
 
 
 class TypeColor:

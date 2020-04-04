@@ -2,13 +2,13 @@
 
 from .node_panel import NodePanel, NodePanelFactory
 from .nodes_window import NodesWindow, NodesWindowFactory
-from .nodes_windows_manager import NodesWindowsManager, NodesWindowsManagerFactory
+from .nodes_windows_group import NodesWindowsGroup, NodesWindowsGroupFactory
 
 __all__ = [
     "NodePanel",
     "NodePanelFactory",
     "NodesWindow",
     "NodesWindowFactory",
-    "NodesWindowsManager",
-    "NodesWindowsManagerFactory",
+    "NodesWindowsGroup",
+    "NodesWindowsGroupFactory",
 ]

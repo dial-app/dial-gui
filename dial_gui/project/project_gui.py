@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 import dependency_injector.providers as providers
 from dial_core.project import Project
 from dial_gui.node_editor import GraphicsSceneFactory
-from dial_gui.node_editor.nodes_windows import NodesWindowsManagerFactory
+from dial_gui.node_editor.nodes_windows import NodesWindowsGroupFactory
 
 if TYPE_CHECKING:
     from dial_gui.node_editor import GraphicsScene
-    from dial_gui.node_editor.nodes_windows import NodesWindowsManager
+    from dial_gui.node_editor.nodes_windows import NodesWindowsGroup
 
 
 class ProjectGUI(Project):
@@ -17,7 +17,7 @@ class ProjectGUI(Project):
         self,
         name: str,
         graphics_scene: "GraphicsScene",
-        nodes_windows_manager: "NodesWindowsManager",
+        nodes_windows_manager: "NodesWindowsGroup",
     ):
         super().__init__(name, graphics_scene.scene)
 
@@ -43,5 +43,5 @@ ProjectGUIFactory = providers.Factory(
     ProjectGUI,
     name="Default Project",
     graphics_scene=GraphicsSceneFactory,
-    nodes_windows_manager=NodesWindowsManagerFactory,
+    nodes_windows_manager=NodesWindowsGroupFactory,
 )

@@ -15,12 +15,12 @@ from .tab_settings_dialog import TabSettingsDialog
 
 if TYPE_CHECKING:
     from dial_gui.project import ProjectManagerGUI
-    from dial_gui.node_editor.nodes_windows import NodesWindowsManager
+    from dial_gui.node_editor.nodes_windows import NodesWindowsGroup
 
 
 class CustomTabWidget(QTabWidget):
     def __init__(
-        self, nodes_windows_manager: "NodesWindowsManager", parent: "QWidget" = None,
+        self, nodes_windows_manager: "NodesWindowsGroup", parent: "QWidget" = None,
     ):
         super().__init__(parent)
 
