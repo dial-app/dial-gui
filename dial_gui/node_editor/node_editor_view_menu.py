@@ -10,16 +10,15 @@ from .graphics_node import GraphicsNode
 
 if TYPE_CHECKING:
     from .graphics_scene import GraphicsScene
-    from dial_gui.widgets.node_panels import NodesWindowsManager
+    from .nodes_windows import NodesWindowsGroup, NodesWindow
     from PySide2.QtWidgets import QWidget
-    from dial_gui.widgets.node_panels import NodesWindow
 
 
 class NodeEditorViewMenu(QMenu):
     def __init__(
         self,
         graphics_scene: "GraphicsScene",
-        nodes_windows_manager: "NodesWindowsManager",
+        nodes_windows_manager: "NodesWindowsGroup",
         parent: "QWidget" = None,
     ):
         super().__init__(parent)
