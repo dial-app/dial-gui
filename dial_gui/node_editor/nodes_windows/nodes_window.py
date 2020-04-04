@@ -4,11 +4,11 @@ import random
 
 import dependency_injector.providers as providers
 from dial_gui.node_editor import GraphicsNode
-from PySide2.QtCore import Qt
+from PySide2.QtCore import QSize, Qt
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QWidget
+from PySide2.QtWidgets import QMainWindow, QSizePolicy, QWidget
 
-from .node_panel import NodePanelFactory
+from .node_panel import NodePanel, NodePanelFactory
 
 
 class NodesWindow(QMainWindow):
@@ -38,8 +38,9 @@ class NodesWindow(QMainWindow):
 
         self.__node_panels = {}
 
-        # TODO: Make something that expands
-        self.setCentralWidget(QWidget())
+        self.__background_widget = QWidget()
+        self.__background_widget.setFixedWidth(0)
+        self.setCentralWidget(self.__background_widget)
 
     def add_graphics_node(self, graphics_node: "GraphicsNode"):
         """Adds a new GraphicsNode to the window.
@@ -58,7 +59,9 @@ class NodesWindow(QMainWindow):
         if graphics_node in self.__node_panels:
             return
 
-        node_panel = self.__default_node_panel_factory(graphics_node, parent=self)
+        node_panel: "NodePanel" = self.__default_node_panel_factory(
+            graphics_node, parent=self
+        )
         graphics_node.parent_node_windows.append(self)
 
         self.__node_panels[graphics_node] = node_panel
