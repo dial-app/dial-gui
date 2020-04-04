@@ -10,6 +10,13 @@ if TYPE_CHECKING:
 
 
 class NodePanel(QDockWidget):
+    """The NodePanel class allows a GraphicsNode to be correctly displayed inside a
+    NodesWindow.
+
+    Attributes:
+        graphics_node: Related GraphicsNode object.
+    """
+
     def __init__(self, graphics_node: "GraphicsNode", parent: "QWidget" = None):
         super().__init__(graphics_node.title, parent)
 
@@ -22,9 +29,22 @@ class NodePanel(QDockWidget):
 
     @property
     def graphics_node(self) -> "GraphicsNode":
+        """Returns the GraphicsNode associated with this NodePanel."""
         return self.__graphics_node
 
     def event(self, event: "QEvent"):
+        """Catches the show and hide events for the NodePanel.
+
+        Important:
+            Due to the system used for displaying the inner widgets on the Node Editor,
+            a widget can't be displayed in two places at the same time, sharing
+            ownership.
+
+            Thus, every time this widget is show, the panel will catch the ownership of
+            the GraphicsNode inner widget, and make it visible here.
+            On the other side, when this panel is hidden, the ownership will be restored
+            to the GraphicsNode.
+        """
         if event.type() == QEvent.Show:
             self.__enable()
             return True
@@ -36,6 +56,8 @@ class NodePanel(QDockWidget):
         return super().event(event)
 
     def __enable(self):
+        """Steals the ownership of the GraphicsNode's inner widget for correct
+        visualization here."""
         self.__last_size = self.__inner_widget.size()
 
         self.__graphics_node.set_inner_widget(QWidget())
@@ -43,6 +65,7 @@ class NodePanel(QDockWidget):
         self.setWidget(self.__inner_widget)
 
     def __disable(self):
+        """Restores the ownership of the inner widget to its GraphicsNode."""
         self.setWidget(None)
         self.__inner_widget.setParent(None)
 
