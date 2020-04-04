@@ -10,9 +10,8 @@ from .graphics_node import GraphicsNode
 
 if TYPE_CHECKING:
     from .graphics_scene import GraphicsScene
-    from dial_gui.widgets.node_panels import NodesWindowsManager
+    from .nodes_windows import NodesWindowsManager, NodesWindow
     from PySide2.QtWidgets import QWidget
-    from dial_gui.widgets.node_panels import NodesWindow
 
 
 class NodeEditorViewMenu(QMenu):

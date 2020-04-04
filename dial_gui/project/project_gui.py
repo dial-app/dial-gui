@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 import dependency_injector.providers as providers
 from dial_core.project import Project
 from dial_gui.node_editor import GraphicsSceneFactory
-from dial_gui.widgets.node_panels import NodesWindowsManagerFactory
+from dial_gui.node_editor.nodes_windows import NodesWindowsManagerFactory
 
 if TYPE_CHECKING:
     from dial_gui.node_editor import GraphicsScene
-    from dial_gui.widgets.node_panels import NodesWindowsManager
+    from dial_gui.node_editor.nodes_windows import NodesWindowsManager
 
 
 class ProjectGUI(Project):
