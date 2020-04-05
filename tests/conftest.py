@@ -1,12 +1,14 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
 import pytest
-
 from dial_core.node_editor import Node, Port
 from dial_gui.node_editor import GraphicsConnectionFactory, GraphicsNodeFactory
 from dial_gui.node_editor.graphics_node import GraphicsPortFactory
+from PySide2.QtCore import QStandardPaths
 
 collect_ignore = ["setup.py"]
+
+QStandardPaths.setTestModeEnabled(True)
 
 
 @pytest.fixture
