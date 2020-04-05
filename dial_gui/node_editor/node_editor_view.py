@@ -31,17 +31,23 @@ if TYPE_CHECKING:
 
 
 class NodeEditorView(QGraphicsView):
+    """The NodeEditorView class provides an interface for the GraphicsScene scene."""
+
     def __init__(self, project_manager: "ProjectManagerGUI", parent: "QWidget" = None):
         super().__init__(parent)
 
+        # Components
         self.__project_manager = project_manager
 
         self.__new_connection: Optional["GraphicsConnection"] = None
 
+        # Filters
         self.__panning_event_filter = PanningEventFilter(parent=self)
         self.__zoom_event_filter = ZoomEventFilter(parent=self)
-        self.installEventFilter(self.__zoom_event_filter)
+        self.set_panning(True)
+        self.set_zooming(True)
 
+        # Config
         self.setRenderHints(
             QPainter.Antialiasing
             | QPainter.HighQualityAntialiasing
@@ -50,10 +56,6 @@ class NodeEditorView(QGraphicsView):
         )
 
         self.setDragMode(QGraphicsView.RubberBandDrag)
-
-        # View actions
-        self.set_panning(True)
-        self.set_zooming(True)
 
         # Hide scrollbars
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -103,6 +105,7 @@ class NodeEditorView(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event: "QWheelEvent"):
+        """Wheel events. Also managed by the zoom_filter."""
         item = self.__item_clicked_on(event)
 
         if isinstance(item, QGraphicsProxyWidget):
@@ -117,6 +120,7 @@ class NodeEditorView(QGraphicsView):
         event.ignore()
 
     def keyPressEvent(self, event):
+        """Keyboard shortcuts for the view."""
         if event.key() == Qt.Key_Delete:
             # Remove selected elements
             for selected_item in self.scene().selectedItems():
@@ -125,15 +129,47 @@ class NodeEditorView(QGraphicsView):
             self.scene().update()
             return
 
+        if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_D:
+            self.duplicate_selected_nodes()
+            return
+
         super().keyPressEvent(event)
 
+    def remove_selected_items(self):
+        """Remove the currently selected items from the scene."""
+        for item in self.scene().selectedItems():
+            self.scene().removeItem(item)
+
+    def duplicate_selected_nodes(self):
+        """Duplicate the currently selected nodes.
+
+        Old nodes will be deselected, and new ones will be selected. New nodes will be
+        put on focus too.
+        """
+        selected_items = self.scene().selectedItems()
+        selected_graphics_nodes = list(
+            filter(lambda x: isinstance(x, GraphicsNode), selected_items)
+        )
+
+        new_graphics_nodes = self.scene().duplicate_graphics_nodes(
+            selected_graphics_nodes
+        )
+
+        self.scene().clearSelection()
+        for graphics_node in new_graphics_nodes:
+            graphics_node.setSelected(True)
+            graphics_node.setZValue(11)
+
     def contextMenuEvent(self, event: "QContextMenuEvent"):
+        """Shows a new context menu on right click. The menu will differ depending on if
+        it's clicking a node, the background, etc."""
         item = self.__item_clicked_on(event)
 
         if isinstance(item, QGraphicsProxyWidget):
             super().contextMenuEvent(event)
             return
 
+        # Node Editor Menu (Operations)
         if self.scene().selectedItems():
             context_menu = NodeEditorViewMenuFactory(
                 graphics_scene=self.scene(),
@@ -142,9 +178,12 @@ class NodeEditorView(QGraphicsView):
                 ),
                 parent=self,
             )
+            context_menu.remove_nodes.connect(self.remove_selected_items)
+            context_menu.duplicate_nodes.connect(self.duplicate_selected_nodes)
             context_menu.popup(event.globalPos())
             return
 
+        # Nodes Factory
         if item is None:
             context_menu = NodesMenuFactory(parent=self)
             context_menu.node_created.connect(self.__create_graphics_node_from)
@@ -152,6 +191,8 @@ class NodeEditorView(QGraphicsView):
             return
 
     def __create_graphics_node_from(self, node: "Node") -> "GraphicsNode":
+        """Creates a new graphics node from the passed node. The GraphicsNode will be
+        created on the cursor position."""
         graphics_node = GraphicsNodeFactory(node)
 
         global_pos = self.mapFromGlobal(QCursor.pos())

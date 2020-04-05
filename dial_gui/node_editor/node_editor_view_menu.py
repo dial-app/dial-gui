@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, Signal
 from PySide2.QtWidgets import QAction, QMenu
 
 from .graphics_node import GraphicsNode
@@ -15,6 +15,13 @@ if TYPE_CHECKING:
 
 
 class NodeEditorViewMenu(QMenu):
+    """The NodeEditorViewMenu class provides a menu for the options avaliable on the
+    menu (Like duplicating nodes, adding them to windows, etc).
+    """
+
+    remove_nodes = Signal()
+    duplicate_nodes = Signal()
+
     def __init__(
         self,
         graphics_scene: "GraphicsScene",
@@ -23,14 +30,16 @@ class NodeEditorViewMenu(QMenu):
     ):
         super().__init__(parent)
 
+        # Components
         self.__graphics_scene = graphics_scene
         self.__nodes_windows_manager = nodes_windows_manager
 
-        self._remove_elements_act = QAction("Remove nodes", self)
-        self._remove_elements_act.triggered.connect(self.__remove_selected_elements)
+        # Actions
+        self._remove_nodes_act = QAction("Remove nodes", self)
+        self._remove_nodes_act.triggered.connect(lambda: self.remove_nodes.emit())
 
         self._duplicate_nodes_act = QAction("Duplicate nodes", self)
-        self._duplicate_nodes_act.triggered.connect(self.__duplicate_selected_nodes)
+        self._duplicate_nodes_act.triggered.connect(lambda: self.duplicate_nodes.emit())
 
         self._add_nodes_to_new_window_act = QAction("Add nodes to new window", self)
         self._add_nodes_to_new_window_act.triggered.connect(
@@ -51,6 +60,7 @@ class NodeEditorViewMenu(QMenu):
         if len(self.__nodes_windows_manager.nodes_windows) == 0:
             self._add_nodes_to_existing_window_menu.setEnabled(False)
 
+        # Add an entry for each opened window
         for window in self.__nodes_windows_manager.nodes_windows:
             action = self._add_nodes_to_existing_window_menu.addAction(window.name)
             action.triggered.connect(
@@ -59,7 +69,7 @@ class NodeEditorViewMenu(QMenu):
                 )
             )
 
-        self.addAction(self._remove_elements_act)
+        self.addAction(self._remove_nodes_act)
         self.addAction(self._duplicate_nodes_act)
         self.addSeparator()
         self.addAction(self._add_nodes_to_new_window_act)
@@ -67,17 +77,11 @@ class NodeEditorViewMenu(QMenu):
         self.addMenu(self._add_nodes_to_existing_window_menu)
 
     def mouseReleaseEvent(self, event):
+        """Ignore right clicks on the QMenu (Avoids unintentional clicks)"""
         if event.button() == Qt.RightButton:  # Ignore right clicks
             return
 
         super().mouseReleaseEvent(event)
-
-    def __remove_selected_elements(self):
-        """Remove the selected elements from the scene."""
-        for selected_item in self.__graphics_scene.selectedItems():
-            self.__graphics_scene.removeItem(selected_item)
-
-        self.__graphics_scene.update()
 
     def __add_selected_nodes_to_new_window(self):
         """Add the selected nodes from a new NodesWindow object."""
@@ -102,21 +106,6 @@ class NodeEditorViewMenu(QMenu):
         for graphics_node in graphics_nodes:
             if isinstance(graphics_node, GraphicsNode):
                 window.add_graphics_node(graphics_node)
-
-    def __duplicate_selected_nodes(self):
-        selected_items = self.__graphics_scene.selectedItems()
-        selected_graphics_nodes = list(
-            filter(lambda x: isinstance(x, GraphicsNode), selected_items)
-        )
-
-        new_graphics_nodes = self.__graphics_scene.duplicate_graphics_nodes(
-            selected_graphics_nodes
-        )
-        self.__graphics_scene.clearSelection()
-
-        for graphics_node in new_graphics_nodes:
-            graphics_node.setSelected(True)
-            graphics_node.setZValue(11)
 
 
 NodeEditorViewMenuFactory = providers.Factory(NodeEditorViewMenu)
