@@ -42,9 +42,10 @@ def initialize(args: "argparse.Namespace"):
         LOGGER.exception(err)
 
         import tkinter as tk
+        from tkinter import messagebox
 
         tk.Tk().withdraw()
-        tk.messagebox.showerror("Error", str(err))
+        messagebox.showerror("Error", str(err))
 
         sys.exit(1)
 
