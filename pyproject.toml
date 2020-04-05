@@ -13,7 +13,7 @@ homepage = "https://github.com/dial-app/dial-gui"
 
 [tool.poetry.dependencies]
 python = ">=3.6, <3.8"
-dial-core = "v0.12a0"
+dial-core = "v0.13a0"
 
 tensorflow = "2.0.0b1"
 PySide2 = "^5.12.6"

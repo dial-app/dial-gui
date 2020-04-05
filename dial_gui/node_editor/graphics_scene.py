@@ -68,6 +68,32 @@ class GraphicsScene(QGraphicsScene):
 
         super().removeItem(item)
 
+    def duplicate_graphics_nodes(self, graphics_nodes: List["GraphicsNode"]):
+        inner_nodes = list(map(lambda x: x._node, graphics_nodes))
+
+        new_duplicated_nodes = self.__scene.duplicate_nodes(inner_nodes)
+
+        new_graphics_nodes = []
+
+        for new_node, old_graphics_node in zip(new_duplicated_nodes, graphics_nodes):
+            graphics_node = self.__create_graphics_node_from(new_node)
+            new_graphics_nodes.append(graphics_node)
+
+            self.__graphics_nodes.append(graphics_node)
+            super().addItem(graphics_node)
+
+            graphics_node.setPos(old_graphics_node.x() + 50, old_graphics_node.y() - 50)
+
+            for graphics_port in list(graphics_node.inputs.values()) + list(
+                graphics_node.outputs.values()
+            ):
+                for graphics_connection in graphics_port.graphics_connections:
+                    print("@GRaphcis", graphics_connection)
+                    # TODO: Solve items duplication with this approach
+                    self.addItem(graphics_connection)
+
+        return new_graphics_nodes
+
     def drawBackground(self, painter: "QPainter", rect: "QRectF"):
         """Draws the background for the scene."""
         super().drawBackground(painter, rect)
