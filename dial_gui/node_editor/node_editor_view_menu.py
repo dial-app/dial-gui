@@ -29,6 +29,9 @@ class NodeEditorViewMenu(QMenu):
         self._remove_elements_act = QAction("Remove nodes", self)
         self._remove_elements_act.triggered.connect(self.__remove_selected_elements)
 
+        self._duplicate_nodes_act = QAction("Duplicate nodes", self)
+        self._duplicate_nodes_act.triggered.connect(self.__duplicate_selected_nodes)
+
         self._add_nodes_to_new_window_act = QAction("Add nodes to new window", self)
         self._add_nodes_to_new_window_act.triggered.connect(
             self.__add_selected_nodes_to_new_window
@@ -57,6 +60,7 @@ class NodeEditorViewMenu(QMenu):
             )
 
         self.addAction(self._remove_elements_act)
+        self.addAction(self._duplicate_nodes_act)
         self.addSeparator()
         self.addAction(self._add_nodes_to_new_window_act)
         self.addAction(self._add_each_node_to_new_window_act)
@@ -98,6 +102,21 @@ class NodeEditorViewMenu(QMenu):
         for graphics_node in graphics_nodes:
             if isinstance(graphics_node, GraphicsNode):
                 window.add_graphics_node(graphics_node)
+
+    def __duplicate_selected_nodes(self):
+        selected_items = self.__graphics_scene.selectedItems()
+        selected_graphics_nodes = list(
+            filter(lambda x: isinstance(x, GraphicsNode), selected_items)
+        )
+
+        new_graphics_nodes = self.__graphics_scene.duplicate_graphics_nodes(
+            selected_graphics_nodes
+        )
+        self.__graphics_scene.clearSelection()
+
+        for graphics_node in new_graphics_nodes:
+            graphics_node.setSelected(True)
+            graphics_node.setZValue(11)
 
 
 NodeEditorViewMenuFactory = providers.Factory(NodeEditorViewMenu)

@@ -4,10 +4,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import dependency_injector.providers as providers
+from dial_core.node_editor import Port
 from PySide2.QtCore import QRectF
 from PySide2.QtWidgets import QGraphicsItem
-
-from dial_core.node_editor import Port
 
 from .graphics_connection import GraphicsConnection, GraphicsConnectionFactory
 from .graphics_port_painter import GraphicsPortPainterFactory
