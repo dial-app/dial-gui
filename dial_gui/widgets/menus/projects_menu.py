@@ -16,45 +16,55 @@ LOGGER = log.get_logger(__name__)
 
 
 class ProjectsMenu(QMenu):
+    """The ProjectsMenu class provides a menu with all the currently active project, and
+    allows changing between them when clicking."""
+
     def __init__(
-        self, project_manager_gui: "ProjectManagerGUI", parent: "QWidget" = None
+        self, project_manager: "ProjectManagerGUI", parent: "QWidget" = None
     ):
         super().__init__("Projects", parent)
 
-        self.__project_manager_gui = project_manager_gui
-        self.__project_manager_gui.project_added.connect(self.__add_project_to_menu)
-        self.__project_manager_gui.active_project_changed.connect(
-            self.__check_active_project
+        # Components
+        self.__project_manager = project_manager
+
+        # The menu is regenerated each time it needs to change: When a project is
+        # opened, or when a project is removed
+        self.__project_manager.project_added.connect(self.__add_project_to_menu)
+        self.__project_manager.active_project_changed.connect(
+            self.__set_active_project
         )
-        self.__project_manager_gui.project_removed.connect(
+        self.__project_manager.project_removed.connect(
             lambda: self.__generate_menu_from_projects()
         )
 
+        # Actions
         self.__projects_actions_group = QActionGroup(self)
-
         self.__generate_menu_from_projects()
-        self.__check_active_project(self.__project_manager_gui.active)
+        self.__set_active_project(self.__project_manager.active)
 
     def mouseReleaseEvent(self, event):
+        """Ignores right clicks on the QMenu (Avoids unintentional clicks)"""
         if event.button() == Qt.RightButton:  # Ignore right clicks
             return
 
         super().mouseReleaseEvent(event)
 
     def __generate_menu_from_projects(self):
+        """Adds an entry to the menu for each Project in the ProjectManagerGUI"""
         self.clear()
-
-        for project in self.__project_manager_gui.projects:
+        for project in self.__project_manager.projects:
             self.__add_project_to_menu(project)
 
     def __add_project_to_menu(self, project: "Project"):
+        """Creates a new entry for the passed project. Clicking on the project will make
+        it the active project on the project manager."""
         project_action = QAction(project.name, self)
         project_action.setCheckable(True)
 
-        index = self.__project_manager_gui.projects.index(project)
+        index = self.__project_manager.projects.index(project)
 
         project_action.triggered.connect(
-            lambda _=False, index=index: self.__project_manager_gui.set_active_project(
+            lambda _=False, index=index: self.__project_manager.set_active_project(
                 index
             )
         )
@@ -64,8 +74,9 @@ class ProjectsMenu(QMenu):
 
         LOGGER.debug("Created ProjectMenu Action (Index %s): %s", index, project_action)
 
-    def __check_active_project(self, project: "Project"):
-        index = self.__project_manager_gui.projects.index(project)
+    def __set_active_project(self, project: "Project"):
+        """Makes the passed project the active one on the menu (will be marked)."""
+        index = self.__project_manager.projects.index(project)
 
         self.actions()[index].setChecked(True)
 
@@ -73,5 +84,5 @@ class ProjectsMenu(QMenu):
 
 
 ProjectsMenuFactory = providers.Factory(
-    ProjectsMenu, project_manager_gui=ProjectManagerGUISingleton
+    ProjectsMenu, project_manager=ProjectManagerGUISingleton
 )

@@ -38,6 +38,7 @@ class LoggerDialog(QDialog):
         self.setLayout(layout)
 
         log.add_handler_to_root(self.handler())
+
         # Write on the window all the previous log messages
         self.textbox.set_plain_text(log.LOG_STREAM.getvalue())
 

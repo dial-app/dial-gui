@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class FileMenu(QMenu):
-    """The class FileMenu provides a configured menu for the basic File operations
+    """The FileMenu class provides a configured menu for the basic File operations
     (Open/Close/Save projects, exit program...)."""
 
     quit = Signal()
@@ -22,9 +22,10 @@ class FileMenu(QMenu):
     def __init__(self, project_manager: "ProjectManager", parent: "QWidget" = None):
         super().__init__("&File", parent)
 
+        # Components
         self.__project_manager = project_manager
 
-        # Add actions
+        # Actions
         self._new_project_act = QAction("New project", self)
         self._new_project_act.setShortcut(QKeySequence.New)
         self._new_project_act.triggered.connect(self.__project_manager.new_project)
@@ -65,6 +66,7 @@ class FileMenu(QMenu):
         self.addAction(self._quit_act)
 
     def mouseReleaseEvent(self, event):
+        """Ignore right clicks on the QMenu (Avoids unintentional clicks)"""
         if event.button() == Qt.RightButton:  # Ignore right clicks
             return
 

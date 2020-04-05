@@ -13,6 +13,13 @@ if TYPE_CHECKING:
 
 
 class NodesMenu(QMenu):
+    """The NodesMenu class provides a menu with all the Node objects that have been
+    registered and can be imported on the Editor.
+
+    When clicked, each option of the NodesMenu will emit a node_created signal with the
+    new created node.
+    """
+
     node_created = Signal(Node)
 
     def __init__(
@@ -20,11 +27,12 @@ class NodesMenu(QMenu):
     ):
         super().__init__("&Nodes", parent)
 
+        # Config
         self.setTearOffEnabled(True)
 
+        # Actions
         for node_name, factory in node_registry.nodes.items():
             action = QAction(node_name, self)
-
             action.triggered.connect(
                 lambda _=False, factory=factory: self.node_created.emit(factory())
             )
@@ -32,6 +40,7 @@ class NodesMenu(QMenu):
             self.addAction(action)
 
     def mouseReleaseEvent(self, event):
+        """Ignore right clicks on the QMenu (Avoids unintentional clicks)"""
         if event.button() == Qt.RightButton:  # Ignore right clicks
             return
 

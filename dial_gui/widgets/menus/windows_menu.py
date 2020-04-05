@@ -13,6 +13,9 @@ if TYPE_CHECKING:
 
 
 class WindowsMenu(QMenu):
+    """The WindowsMenu class providers a menu with some windows (dialogs) that can be
+    pop up. For example, a window with all the log."""
+
     def __init__(self, logger_dialog: "LoggerDialog", parent: "QWidget" = None):
         super().__init__("&Windows", parent)
 
@@ -24,12 +27,14 @@ class WindowsMenu(QMenu):
         self.addAction(self._show_log_act)
 
     def mouseReleaseEvent(self, event):
+        """Ignores right clicks on the QMenu (Avoids unintentional clicks)"""
         if event.button() == Qt.RightButton:  # Ignore right clicks
             return
 
         super().mouseReleaseEvent(event)
 
     def __toggle_logger_dialog(self):
+        """Shows the log dialog window."""
         self.__logger_dialog.show()
 
 
