@@ -1,14 +1,27 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-import pytest
-from dial_core.node_editor import Node, Port
-from dial_gui.node_editor import GraphicsConnectionFactory, GraphicsNodeFactory
-from dial_gui.node_editor.graphics_node import GraphicsPortFactory
-from PySide2.QtCore import QStandardPaths
+import os
+
+from PySide2.QtCore import QStandardPaths  # isort:skip
+
+
+def custom_file_paths(standard_location):
+    if standard_location == QStandardPaths.ConfigLocation:
+        os.makedirs(".qttest/config/", exist_ok=True)
+        return ".qttest/config/"
+
+
+QStandardPaths.writableLocation = custom_file_paths
+
+import pytest  # noqa: F402
+from dial_core.node_editor import Node, Port  # noqa: F402
+from dial_gui.node_editor import (  # noqa: F402
+    GraphicsConnectionFactory,
+    GraphicsNodeFactory,
+)
+from dial_gui.node_editor.graphics_node import GraphicsPortFactory  # noqa: F402
 
 collect_ignore = ["setup.py"]
-
-QStandardPaths.setTestModeEnabled(True)
 
 
 @pytest.fixture

@@ -4,6 +4,6 @@
 Utility and helper methods (Logging system, version checkers, code timers...).
 """
 
-from . import application, initialization, tkinter
+from . import application, initialization
 
-__all__ = ["initialization", "tkinter", "application"]
+__all__ = ["initialization", "application"]

@@ -41,9 +41,11 @@ def initialize(args: "argparse.Namespace"):
     except (ImportError, SystemError) as err:
         LOGGER.exception(err)
 
-        from dial_gui.utils import tkinter as dial_tkinter
+        import tkinter as tk
 
-        dial_tkinter.showerror(str(err))
+        tk.Tk().withdraw()
+        tk.messagebox.showerror("Error", str(err))
+
         sys.exit(1)
 
 
@@ -66,6 +68,8 @@ def __gui_initialization(args: "argparse.Namespace"):
 
 
 def __plugins_initialization(args: "argparse.Namespace"):
+    """Initializes the plugin manager and loads all the necessary plugins.
+    """
     plugins_install_abs_path = os.path.abspath(application.plugins_install_directory())
 
     sys.path.append(plugins_install_abs_path)
@@ -88,6 +92,12 @@ def __plugins_initialization(args: "argparse.Namespace"):
 
 
 def exit_application():
+    """Cleans up resources and makes modifications before closing the application.
+
+    Important:
+        Up to this point, the user can't interact with the GUI. For clean up tasks that
+        require the user to interact with, see 'MainWindow.closeEvent' method.
+    """
     # Save plugin manager current state
     plugins_manager = PluginManagerSingleton()
 

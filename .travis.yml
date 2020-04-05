@@ -12,6 +12,7 @@ addons:
       - libxkbcommon-x11-0
 
 install:
+  - mkdir -p .qttest/config/
   - pip install tox tox-travis codecov
 
 script:
