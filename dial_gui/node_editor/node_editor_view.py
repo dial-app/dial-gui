@@ -18,7 +18,7 @@ from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.widgets.menus import NodesMenuFactory
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QCursor, QPainter
-from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView
+from PySide2.QtWidgets import QGraphicsProxyWidget, QGraphicsView, QMessageBox
 
 from .node_editor_view_menu import NodeEditorViewMenuFactory
 
@@ -123,10 +123,7 @@ class NodeEditorView(QGraphicsView):
         """Keyboard shortcuts for the view."""
         if event.key() == Qt.Key_Delete:
             # Remove selected elements
-            for selected_item in self.scene().selectedItems():
-                self.scene().removeItem(selected_item)
-
-            self.scene().update()
+            self.remove_selected_items()
             return
 
         if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_D:
@@ -137,8 +134,16 @@ class NodeEditorView(QGraphicsView):
 
     def remove_selected_items(self):
         """Remove the currently selected items from the scene."""
-        for item in self.scene().selectedItems():
-            self.scene().removeItem(item)
+        return_code = QMessageBox.warning(
+            self,
+            "Confirm operation",
+            "Do you want to remove the selected nodes?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+
+        if return_code == QMessageBox.Yes:
+            for item in self.scene().selectedItems():
+                self.scene().removeItem(item)
 
     def duplicate_selected_nodes(self):
         """Duplicate the currently selected nodes.
