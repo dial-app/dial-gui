@@ -13,12 +13,15 @@ homepage = "https://github.com/dial-app/dial-gui"
 
 [tool.poetry.dependencies]
 python = ">=3.6, <3.8"
-dial-core = "v0.13a0"
+dial-core = { path = "/home/david/dial-core" }
+
+dial-basic-nodes = { path = "/home/david/.config/dial/plugins/dial-basic-nodes" }
 
 tensorflow = "2.0.0b1"
 PySide2 = "^5.12.6"
 qimage2ndarray = "^1.8.3"
 dependency-injector = "^3.15.6"
+nbconvert = "^5.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

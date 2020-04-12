@@ -24,8 +24,6 @@ def config_directory() -> str:
     if not os.path.isdir(config_directory):
         os.mkdir(config_directory)
 
-    print(config_directory)
-
     return config_directory
 
 

@@ -58,6 +58,10 @@ def __gui_initialization(args: "argparse.Namespace"):
     # State the signals handled by this application
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+    # Necessary for Qt Web Engine
+    from PySide2.QtCore import Qt, QCoreApplication
+    QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+
     # Initialize PySide2
     from PySide2.QtWidgets import QApplication
 
