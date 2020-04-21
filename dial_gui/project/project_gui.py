@@ -20,7 +20,6 @@ class ProjectGUI(Project):
         nodes_windows_manager: "NodesWindowsGroup",
     ):
         super().__init__(name, graphics_scene.scene)
-        print("Constructing")
 
         self.__graphics_scene = graphics_scene
         self.__nodes_windows_manager = nodes_windows_manager

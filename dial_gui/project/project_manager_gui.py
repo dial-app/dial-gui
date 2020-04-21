@@ -1,10 +1,13 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
+import os
+
 import dependency_injector.providers as providers
-from dial_core.project import ProjectManager
-from dial_core.utils import log
 from PySide2.QtCore import Signal
 from PySide2.QtWidgets import QFileDialog, QMessageBox, QWidget
+
+from dial_core.project import ProjectManager
+from dial_core.utils import log
 
 from .project_gui import ProjectGUI, ProjectGUIFactory
 
@@ -45,17 +48,20 @@ class ProjectManagerGUI(QWidget, ProjectManager):
     def save_project_as(self, project: "ProjectGUI"):
         LOGGER.debug("Opening dialog for picking a save file...")
 
-        selected_file_path = QFileDialog.getSaveFileName(
-            QWidget(), "Save Dial project", "", "Dial Files (*.dial)"
-        )[0]
+        selected_parent_dir = QFileDialog.getExistingDirectory(
+            parent=self,
+            caption="Save Dial project",
+            options=QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
+        )
 
-        if not selected_file_path.endswith(".dial"):
-            selected_file_path += ".dial"
+        # Avoid saving a project as a subproject
+        if os.path.basename(selected_parent_dir) == project.name:
+            selected_parent_dir = os.path.dirname(os.path.dirname(selected_parent_dir))
 
-        LOGGER.info("File path selected for saving: %s", selected_file_path)
+        LOGGER.info("File path selected for saving: %s", selected_parent_dir)
 
-        if selected_file_path:
-            super().save_project_as(project, selected_file_path)
+        if selected_parent_dir:
+            super().save_project_as(project, selected_parent_dir)
         else:
             LOGGER.info("Invalid file path. Saving cancelled.")
 

@@ -69,6 +69,8 @@ class NotebookEditorWidget(QWidget):
         with open("file.html", "w") as html_file:
             html_file.write(html_content)
 
+        self._notebook_generator.save_notebook_as("nb.ipynb")
+
         self._text_browser.setHtml(html_content)
 
 

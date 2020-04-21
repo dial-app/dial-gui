@@ -39,7 +39,6 @@ class NodeEditorWindow(QWidget):
         self.__node_editor_view.setScene(self.__graphics_scene)
 
     def change_graphics_scene(self, new_graphics_scene: "GraphicsScene"):
-        print("Changing graphics scene")
         self.__graphics_scene = new_graphics_scene
         self.__node_editor_view.setScene(self.__graphics_scene)
 

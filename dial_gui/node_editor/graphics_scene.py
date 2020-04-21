@@ -88,7 +88,6 @@ class GraphicsScene(QGraphicsScene):
                 graphics_node.outputs.values()
             ):
                 for graphics_connection in graphics_port.graphics_connections:
-                    print("@GRaphcis", graphics_connection)
                     # TODO: Solve items duplication with this approach
                     self.addItem(graphics_connection)
 
