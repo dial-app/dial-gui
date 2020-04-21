@@ -1,6 +1,6 @@
 # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
 
-from dial_core.datasets import Dataset
+from dial_core.datasets import Dataset, DatasetsGroup
 from dial_core.utils import Dial
 from PySide2.QtGui import QColor
 from tensorflow.keras import Model
@@ -11,6 +11,7 @@ class TypeColor:
         int: QColor("#B54747"),
         str: QColor("#0056A6"),
         Dataset: QColor("#6666FF"),
+        DatasetsGroup: QColor("#1785CF"),
         Dial.KerasLayerListMIME: QColor("#AA0000"),
         Model: QColor("#0000AA"),
     }
