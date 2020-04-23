@@ -19,7 +19,7 @@ from dial_gui.node_editor import (  # noqa: F402
     GraphicsConnectionFactory,
     GraphicsNodeFactory,
 )
-from dial_gui.node_editor.graphics_node import GraphicsPortFactory  # noqa: F402
+from dial_gui.node_editor import GraphicsPortFactory  # noqa: F402
 
 collect_ignore = ["setup.py"]
 

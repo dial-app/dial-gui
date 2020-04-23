@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 import dependency_injector.providers as providers
 from PySide2.QtWidgets import QVBoxLayout, QWidget
 
-from .graphics_scene import GraphicsSceneFactory
+from dial_gui.node_editor import GraphicsSceneFactory
 from .node_editor_view import NodeEditorViewFactory
 
 if TYPE_CHECKING:
     from .node_editor_view import NodeEditorView
-    from .graphics_scene import GraphicsScene
+    from dial_gui.node_editor import GraphicsScene
 
 
 class NodeEditorWindow(QWidget):

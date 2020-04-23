@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
 from dial_core.utils import log
-from dial_gui.node_editor import NodeEditorWindow  # noqa: F401
 from dial_gui.project import ProjectManagerGUISingleton
 from dial_gui.utils import application
 from dial_gui.widgets.editor_tabwidget import EditorTabWidgetFactory

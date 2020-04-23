@@ -6,11 +6,11 @@ import dependency_injector.providers as providers
 from PySide2.QtCore import Qt, Signal
 from PySide2.QtWidgets import QAction, QMenu
 
-from .graphics_node import GraphicsNode
+from dial_gui.node_editor import GraphicsNode
 
 if TYPE_CHECKING:
     from .graphics_scene import GraphicsScene
-    from .nodes_windows import NodesWindowsGroup, NodesWindow
+    from dial_gui.node_editor.nodes_windows import NodesWindowsGroup, NodesWindow
     from PySide2.QtWidgets import QWidget
 
 

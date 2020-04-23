@@ -3,7 +3,7 @@
 from typing import TYPE_CHECKING
 
 import dependency_injector.providers as providers
-from dial_gui.node_editor import NodeEditorWindowFactory
+from dial_gui.widgets.node_editor import NodeEditorWindowFactory
 from dial_gui.node_editor.nodes_windows import NodesWindow
 from dial_gui.project import ProjectManagerGUISingleton
 from PySide2.QtCore import QEvent
