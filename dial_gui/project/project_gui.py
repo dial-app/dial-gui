@@ -21,23 +21,23 @@ class ProjectGUI(Project):
     ):
         super().__init__(name, graphics_scene.scene)
 
-        self.__graphics_scene = graphics_scene
-        self.__nodes_windows_manager = nodes_windows_manager
+        self._graphics_scene = graphics_scene
+        self._graphics_scene.scene.parent = self
 
-        self.__graphics_scene.scene.parent = self
+        self._nodes_windows_manager = nodes_windows_manager
 
     @property
     def graphics_scene(self):
-        return self.__graphics_scene
+        return self._graphics_scene
 
     @property
     def nodes_windows_manager(self):
-        return self.__nodes_windows_manager
+        return self._nodes_windows_manager
 
     def __reduce__(self):
         return (
             ProjectGUI,
-            (self.name, self.__graphics_scene, self.__nodes_windows_manager,),
+            (self.name, self._graphics_scene, self._nodes_windows_manager,),
         )
 
 

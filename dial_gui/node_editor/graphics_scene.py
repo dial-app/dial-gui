@@ -134,19 +134,15 @@ class GraphicsScene(QGraphicsScene):
 
     def __getstate__(self):
         LOGGER.debug("Saving scene:\n%s", self.__scene)
-        return {"scene": self.__scene, "graphics_nodes": self.__graphics_nodes}
+        return {"graphics_nodes": self.__graphics_nodes}
 
     def __setstate__(self, new_state: dict):
         """Composes a GraphicsScene object from a pickled dict."""
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAa STARTING GRAPHISCENCEn")
         self.clear()
 
-        self.__scene = new_state["scene"]
-        self.__graphics_nodes = new_state["graphics_nodes"]
-
-        LOGGER.debug("Loading scene:\n%s", self.__scene)
-
-        for graphics_node in self.__graphics_nodes:
-            super().addItem(graphics_node)
+        for graphics_node in new_state["graphics_nodes"]:
+            self.addItem(graphics_node)
 
             for graphics_port in list(graphics_node.inputs.values()) + list(
                 graphics_node.outputs.values()
@@ -154,6 +150,8 @@ class GraphicsScene(QGraphicsScene):
                 for graphics_connection in graphics_port.graphics_connections:
                     # TODO: Solve items duplication with this approach
                     self.addItem(graphics_connection)
+
+        LOGGER.debug("Loading scene:\n%s", self.__scene)
 
         self.update()
 
