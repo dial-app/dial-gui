@@ -69,8 +69,7 @@ def __gui_initialization(args: "argparse.Namespace"):
     app.setApplicationName("dial")
     app.aboutToQuit.connect(exit_application)
 
-    import dial_gui
-
+    from dial_gui.project import ProjectManagerGUISingleton
     __plugins_initialization(args)
 
 

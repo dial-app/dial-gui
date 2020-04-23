@@ -24,6 +24,8 @@ class ProjectGUI(Project):
         self.__graphics_scene = graphics_scene
         self.__nodes_windows_manager = nodes_windows_manager
 
+        self.__graphics_scene.scene.parent = self
+
     @property
     def graphics_scene(self):
         return self.__graphics_scene

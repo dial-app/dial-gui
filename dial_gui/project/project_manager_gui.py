@@ -56,7 +56,7 @@ class ProjectManagerGUI(QWidget, ProjectManager):
 
         # Avoid saving a project as a subproject
         if os.path.basename(selected_parent_dir) == project.name:
-            selected_parent_dir = os.path.dirname(os.path.dirname(selected_parent_dir))
+            selected_parent_dir = os.path.dirname(selected_parent_dir)
 
         LOGGER.info("File path selected for saving: %s", selected_parent_dir)
 
