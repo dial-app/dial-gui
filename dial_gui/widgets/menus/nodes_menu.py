@@ -30,14 +30,27 @@ class NodesMenu(QMenu):
         # Config
         self.setTearOffEnabled(True)
 
+        self._menu_tree = {"_menu": self}
+
         # Actions
-        for node_name, factory in node_registry.nodes.items():
+        for node_id, factory in node_registry.nodes.items():
+            current_menu_node = self._menu_tree
+
+            node_menu_path = node_id.split("/")
+            for menu_name in node_menu_path[:-1]:
+                if menu_name not in current_menu_node:
+                    new_menu = QMenu(menu_name)
+                    current_menu_node["_menu"].addMenu(new_menu)
+                    current_menu_node[menu_name] = {"_menu": new_menu}
+
+                current_menu_node = current_menu_node[menu_name]
+
+            node_name = node_menu_path[-1]
             action = QAction(node_name, self)
             action.triggered.connect(
                 lambda _=False, factory=factory: self.node_created.emit(factory())
             )
-
-            self.addAction(action)
+            current_menu_node["_menu"].addAction(action)
 
     def mouseReleaseEvent(self, event):
         """Ignore right clicks on the QMenu (Avoids unintentional clicks)"""
