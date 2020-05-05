@@ -1,4 +1,4 @@
-![https://i.imgur.com/k237AuE.png](https://i.imgur.com/k237AuE.png)
+![https://i.imgur.com/GjGHXOi.png](https://i.imgur.com/GjGHXOi.png)
 
 | Build | Coverage | Quality | Version | Python | Docs | License |
 |-------|----------|---------|---------|--------|------|---------|
