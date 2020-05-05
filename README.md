@@ -1,5 +1,6 @@
-# dial-gui
-GUI for the __dial-core__ framework.
+![https://i.imgur.com/HDuPovt.png](https://i.imgur.com/HDuPovt.png)
+
+GUI for __dial-core__.
 
 | Build | Coverage | Quality | Version | Python | Docs | License |
 |-------|----------|---------|---------|--------|------|---------|
