@@ -1,6 +1,6 @@
-![https://i.imgur.com/HDuPovt.png](https://i.imgur.com/HDuPovt.png)
-
-GUI for __dial-core__.
+![https://i.imgur.com/k237AuE.png](https://i.imgur.com/k237AuE.png)
+________________
+__GUI__ for __dial-core__, written with __PySide2__.
 
 | Build | Coverage | Quality | Version | Python | Docs | License |
 |-------|----------|---------|---------|--------|------|---------|
