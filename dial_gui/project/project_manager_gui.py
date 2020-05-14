@@ -3,11 +3,10 @@
 import os
 
 import dependency_injector.providers as providers
-from PySide2.QtCore import Signal
-from PySide2.QtWidgets import QFileDialog, QMessageBox, QWidget
-
 from dial_core.project import ProjectManager
 from dial_core.utils import log
+from PySide2.QtCore import Signal
+from PySide2.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 from .project_gui import ProjectGUI, ProjectGUIFactory
 
