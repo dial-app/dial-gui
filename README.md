@@ -10,7 +10,7 @@ __dial-app__ is a GUI for __dial-core__, written with __Python__ and __PySide2__
 
 ## Images
 
-![Dial GUI Preview](https://i.imgur.com/Diu9MUp.png)
+![Dial GUI Preview](https://i.imgur.com/H2R9toN.png)
 
 This is a __work in progress__ project. Expect most of the interface to change over time.
 
